@@ -17,7 +17,7 @@ namespace Parsifal.Math.Algorithm
         /// <param name="segment">线段</param>
         /// <param name="nearest">最近点</param>
         /// <returns><paramref name="checkPoint"/>到<paramref name="segment"/>的距离</returns>
-        public static double Point2Segment(Point2D checkPoint, Segment segment, out Point2D nearest)
+        public static double Point2Segment(in Point2D checkPoint, in Segment segment, out Point2D nearest)
         {
             return Point2Segment(checkPoint, (segment.EpA, segment.EpB), out nearest);
         }
@@ -28,7 +28,7 @@ namespace Parsifal.Math.Algorithm
         /// <param name="segment">线段</param>
         /// <param name="nearest">最近点</param>
         /// <returns><paramref name="checkPoint"/>到<paramref name="segment"/>的距离</returns>
-        public static double Point2Segment(Point2D checkPoint, (Point2D, Point2D) segment, out Point2D nearest)
+        public static double Point2Segment(in Point2D checkPoint, in (Point2D, Point2D) segment, out Point2D nearest)
         {
             //先判断点是否在线端外靠近某一端点，若点投影在线段内则再求垂足点
             var ab = segment.Item2 - segment.Item1;
@@ -55,7 +55,7 @@ namespace Parsifal.Math.Algorithm
         /// <param name="polygon">多边形</param>
         /// <param name="nearest">最近点</param>
         /// <returns><paramref name="checkPoint"/>到<paramref name="polygon"/>的距离</returns>
-        public static double Point2Polygon(Point2D checkPoint, Polygon polygon, out Point2D nearest)
+        public static double Point2Polygon(in Point2D checkPoint, in Polygon polygon, out Point2D nearest)
         {
             return Point2Polygon(checkPoint, polygon.GetVertexes(), out nearest);
         }
@@ -66,7 +66,7 @@ namespace Parsifal.Math.Algorithm
         /// <param name="polygon">多边形</param>
         /// <param name="nearest">最近点</param>
         /// <returns><paramref name="checkPoint"/>到<paramref name="polygon"/>的距离</returns>
-        public static double Point2Polygon(Point2D checkPoint, Point2D[] polygon, out Point2D nearest)
+        public static double Point2Polygon(in Point2D checkPoint, in Point2D[] polygon, out Point2D nearest)
         {
             //求出点到各边的距离，然后取最小值
             nearest = Point2D.Origin;
@@ -93,7 +93,7 @@ namespace Parsifal.Math.Algorithm
         /// <param name="circle">圆</param>
         /// <param name="nearest">最近点</param>
         /// <returns><paramref name="checkPoint"/>到<paramref name="circle"/>的距离</returns>
-        public static double Point2Circle(Point2D checkPoint, Circle circle, out Point2D nearest)
+        public static double Point2Circle(in Point2D checkPoint, in Circle circle, out Point2D nearest)
         {
             if (checkPoint == circle.Center)
             {
