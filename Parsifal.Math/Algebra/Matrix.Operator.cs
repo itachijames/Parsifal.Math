@@ -1,4 +1,7 @@
-﻿namespace Parsifal.Math.Algebra
+﻿using System.Collections.Concurrent;
+using System.Threading.Tasks;
+
+namespace Parsifal.Math.Algebra
 {
     public partial class Matrix
     {
@@ -9,7 +12,7 @@
             var result = new Matrix(matrix._rowCount, matrix._colCount, false);
             for (int i = 0; i < result._elements.Length; i++)
             {
-                result.Set(i, -1d * matrix.Get(i));
+                result.Set(i, -1 * matrix.Get(i));
             }
             return result;
         }
@@ -100,8 +103,45 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckMultipliable(left, right);
-            var result = new Matrix(left._rowCount, right._colCount);
-            //todo
+            var result = new Matrix(left._rowCount, right._colCount, false);
+            if (ParallelHelper.ShouldNotUseParallelism() || left.ShouldNotUseParallel() || right.ShouldNotUseParallel())
+            {//直算
+                for (int i = 0; i < left._rowCount; i++)
+                {
+                    for (int j = 0; j < right._colCount; j++)
+                    {
+                        var temp = 0d;
+                        for (int k = 0; k < left._colCount; k++)
+                        {
+                            temp += left.Get(i, k) * right.Get(k, j);
+                        }
+                        result.Set(i, j, temp);
+                    }
+                }
+            }
+            else
+            {//并行
+                Parallel.ForEach(Partitioner.Create(0, left._rowCount, 1),//按左矩阵的每行来算
+                    ParallelHelper.CreateParallelOptions(),
+                    range =>
+                    {
+                        double[] row;
+                        for (int i = range.Item1; i < range.Item2; i++)
+                        {
+                            row = left.GetRowArray(i);
+                            for (int j = 0; j < right._colCount; j++)
+                            {
+                                var col = right.GetColumnArray(j);
+                                double temp = 0d;
+                                for (int k = 0; k < left._colCount; k++)
+                                {
+                                    temp += row[k] * col[k];
+                                }
+                                result.Set(i, j, temp);
+                            }
+                        }
+                    });
+            }
             return result;
         }
         public static Vector Multiply(Matrix matrix, Vector vector)
@@ -111,7 +151,7 @@
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(matrix, vector);
-            var result = new Vector(vector.Dimension);
+            var result = new double[matrix._rowCount];
             for (int i = 0; i < matrix._rowCount; i++)
             {
                 var temp = 0d;
@@ -119,26 +159,7 @@
                 {
                     temp += matrix.Get(i, j) * vector.Get(j);
                 }
-                result.Set(i, temp);
-            }
-            return result;
-        }
-        public static Vector Multiply(Vector vector, Matrix matrix)
-        {
-            if (vector is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            if (matrix is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            CheckMultipliable(vector, matrix);
-            var result = new Vector(vector.Dimension);
-            for (int i = 0; i < matrix._colCount; i++)
-            {
-                var temp = 0d;
-                for (int j = 0; j < matrix._rowCount; j++)
-                {
-                    temp += vector.Get(j) * matrix.Get(j, i);
-                }
-                result.Set(i, temp);
+                result[i] = temp;
             }
             return result;
         }
@@ -156,7 +177,79 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             throw new System.NotImplementedException();
         }
+        /// <summary>
+        /// <paramref name="left"/>乘以<paramref name="right"/>的转置
+        /// </summary>
+        public static Matrix MultiplyTranspose(Matrix left, Matrix right)
+        {
+            if (left is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(left));
+            if (right is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(right));
+            CheckSameColumn(left, right);
+            var result = new Matrix(left._rowCount, right._rowCount, false);
+            if (ParallelHelper.ShouldNotUseParallelism() || left.ShouldNotUseParallel() || right.ShouldNotUseParallel())
+            {
+                for (int i = 0; i < right._rowCount; i++)
+                {
+                    for (int j = 0; j < left._rowCount; j++)
+                    {
+                        var temp = 0d;
+                        for (int k = 0; k < left._colCount; k++)
+                        {
+                            temp += left.Get(j, k) * right.Get(i, k);
+                        }
+                        result.Set(j, i, temp);
+                    }
+                }
 
+            }
+            else
+            {//并行
+                throw new System.NotImplementedException();
+            }
+            return result;
+        }
+        /// <summary>
+        /// <paramref name="left"/>的转置乘以<paramref name="right"/>
+        /// </summary>
+        public static Matrix TransposeMultiply(Matrix left, Matrix right)
+        {
+            if (left is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(left));
+            if (right is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(right));
+            CheckSameRow(left, right);
+            var result = new Matrix(left._colCount, right._colCount, false);
+            if (ParallelHelper.ShouldNotUseParallelism() || left.ShouldNotUseParallel() || right.ShouldNotUseParallel())
+            {
+                for (int i = 0; i < right._colCount; i++)
+                {
+                    for (int j = 0; j < left._colCount; j++)
+                    {
+                        var temp = 0d;
+                        for (int k = 0; k < left._rowCount; k++)
+                        {
+                            temp += left.Get(k, j) * right.Get(k, i);
+                        }
+                        result.Set(j, i, temp);
+                    }
+                }
+            }
+            else
+            {//并行
+                throw new System.NotImplementedException();
+            }
+            return result;
+        }
+
+        public void Negate()
+        {
+            for (int i = 0; i < _elements.Length; i++)
+            {
+                Set(i, -1 * Get(i));
+            }
+        }
         public void Add(double scalar)
         {
             for (int i = 0; i < _elements.Length; i++)
@@ -198,31 +291,31 @@
                 Set(i, scalar * Get(i));
             }
         }
-        public void Multiply(Matrix other)
+        public Matrix Multiply(Matrix matrix)
         {
-            if (other is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(other));
-            CheckSameDimension(this, other);
-            //todo
+            return Matrix.Multiply(this, matrix);
+        }
+        public Vector Multiply(Vector vector)
+        {
+            return Matrix.Multiply(this, vector);
         }
         public void Divide(double scalar)
         {
             Multiply(1.0 / scalar);
         }
         /// <summary>
-        /// 转置乘
+        /// 转置乘以(参数)矩阵
         /// </summary>
-        /// <param name="other">另一个矩阵</param>
-        /// <returns></returns>
-        public Matrix TransposeMultiply(Matrix other)
+        public Matrix TransposeMultiply(Matrix matrix)
         {
-            if (other is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(other));
-            CheckSameRow(this, other);
-
-            var result = new Matrix(_colCount, other._colCount);
-            //todo
-            return result;
+            return Matrix.TransposeMultiply(this, matrix);
+        }
+        /// <summary>
+        /// 乘以(参数)矩阵的转置
+        /// </summary>
+        public Matrix MultiplyTranspose(Matrix matrix)
+        {
+            return Matrix.MultiplyTranspose(this, matrix);
         }
 
         #region operator
@@ -292,10 +385,6 @@
         public static Vector operator *(Matrix matrix, Vector vector)
         {
             return Matrix.Multiply(matrix, vector);
-        }
-        public static Vector operator *(Vector vector, Matrix matrix)
-        {
-            return Matrix.Multiply(vector, matrix);
         }
         public static Matrix operator /(Matrix matrix, double scalar)
         {

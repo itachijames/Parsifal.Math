@@ -45,6 +45,15 @@ namespace Parsifal.Math
             return radian * (180d / Pi);
         }
         /// <summary>
+        /// 角度转弧度
+        /// </summary>
+        /// <param name="degree">角度</param>
+        /// <returns>弧度</returns>
+        public static double DegreeToRadian(double degree)
+        {
+            return degree * (Pi / 180d);
+        }
+        /// <summary>
         /// 角转换到[-π, π]
         /// </summary>
         /// <param name="radian">弧度</param>
@@ -69,15 +78,6 @@ namespace Parsifal.Math
             if (rad < 0d)
                 rad += TwoPi;
             return rad;
-        }
-        /// <summary>
-        /// 角度转弧度
-        /// </summary>
-        /// <param name="degree">角度</param>
-        /// <returns>弧度</returns>
-        public static double DegreeToRadian(double degree)
-        {
-            return degree * (Pi / 180d);
         }
         /// <summary>
         /// 角转换到[-180, 180]

@@ -6,10 +6,8 @@ namespace Parsifal.Math.UnitTest
 {
     public class AlgorithmTest
     {
-
-
         [Fact]
-        public void GeometryAlgorithmTest()
+        public void GeometryInOutTest()
         {
             var point = new Point2D(2, 1.51);
             var polygon = GetPolygon();
@@ -43,16 +41,7 @@ namespace Parsifal.Math.UnitTest
         }
 
         [Fact]
-        public void Test2()
-        {
-            var segment = new Segment(new Point2D(0, 0), new Point2D(2, 2));
-            var point = new Point2D(2, 0);
-            Assert.Equal(new Point2D(2d / 2, 2d / 2), segment.GetLine().GetFootpoint(point));
-        }
-
-
-        [Fact]
-        public void Test3()
+        public void IntersectedTest()
         {
             var polygon = new Point2D[]
             {
@@ -67,7 +56,7 @@ namespace Parsifal.Math.UnitTest
         }
 
         [Fact]
-        public void Test4()
+        public void DistanceTest()
         {
             var circle = new Circle(Point2D.Origin, 1);
             var point = new Point2D(-3, 0);

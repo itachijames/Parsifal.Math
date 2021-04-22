@@ -133,10 +133,10 @@ namespace Parsifal.Math.Algebra
 
         #region public
         /// <summary>
-        /// 点乘
+        /// 向量点积/内积(Inner Product, dot product)
         /// </summary>
         /// <param name="vector"></param>
-        /// <returns>内积/数量积/点积</returns>
+        /// <returns>数量积</returns>
         public double DotProduct(Vector vector)
         {
             return DotProduct(this, vector);

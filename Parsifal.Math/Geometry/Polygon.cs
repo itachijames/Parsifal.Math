@@ -103,7 +103,7 @@
         {
             if (vertexes == null || vertexes.Length < 3)
                 return false;
-            if (MathUtilHelper.HaveRepeated(vertexes))
+            if (CommonHelper.HaveRepeated(vertexes))
                 return false;
             //判断点集是否能构成简单多边形(相邻三点不共线，边不自交)
             for (int i = 0, j, k; i < vertexes.Length; i++)

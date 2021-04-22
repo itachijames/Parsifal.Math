@@ -108,11 +108,12 @@ namespace Parsifal.Math
         #region public
         public int CompareTo(Angle other)
         {
-            if (_radian > other._radian)
-                return 1;
-            else if (_radian < other._radian)
-                return -1;
-            return 0;
+            return _radian.CompareTo(other._radian);
+            //if (_radian > other._radian)
+            //    return 1;
+            //else if (_radian < other._radian)
+            //    return -1;
+            //return 0;
         }
         public int CompareTo(object obj)
         {

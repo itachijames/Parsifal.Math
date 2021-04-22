@@ -518,15 +518,23 @@ namespace Parsifal.Math.Algebra
             }
         }
         /// <summary>
-        /// 获取行向量
+        /// 获取列数组
         /// </summary>
         /// <param name="rowIndex">行索引</param>
-        public Vector GetRowVector(int rowIndex)
+        public double[] GetRowArray(int rowIndex)
         {
             CheckRowIndex(rowIndex);
             var result = new double[_colCount];
             Buffer.BlockCopy(_elements, rowIndex * _colCount * DoubleSize, result, 0, _colCount * DoubleSize);
             return result;
+        }
+        /// <summary>
+        /// 获取行向量
+        /// </summary>
+        /// <param name="rowIndex">行索引</param>
+        public Vector GetRowVector(int rowIndex)
+        {
+            return GetRowArray(rowIndex);
         }
         /// <summary>
         /// 获取列
@@ -541,10 +549,10 @@ namespace Parsifal.Math.Algebra
             }
         }
         /// <summary>
-        /// 获取列向量
+        /// 获取列数组
         /// </summary>
         /// <param name="columnIndex">列索引</param>
-        public Vector GetColumnVector(int columnIndex)
+        public double[] GetColumnArray(int columnIndex)
         {
             CheckColumnIndex(columnIndex);
             var result = new double[_rowCount];
@@ -553,6 +561,14 @@ namespace Parsifal.Math.Algebra
                 result[i] = Get(i, columnIndex);
             }
             return result;
+        }
+        /// <summary>
+        /// 获取列向量
+        /// </summary>
+        /// <param name="columnIndex">列索引</param>
+        public Vector GetColumnVector(int columnIndex)
+        {
+            return GetColumnArray(columnIndex);
         }
         /// <summary>
         /// 获取子矩阵

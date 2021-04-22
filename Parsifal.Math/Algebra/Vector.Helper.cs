@@ -25,6 +25,13 @@
             if (index < 0 || index >= _elements.Length)
                 ThrowHelper.ThrowIndexOutOfRangeException(nameof(index));
         }
+        /// <summary>是否使用并行</summary>
+        /// <remarks>用于指示在使用<b>原生算法</b>时是否使用并行运算</remarks>
+        /// <returns>应使用返回true;否则false</returns>
+        private bool ShouldNotUseParallel()
+        {
+            return _elements.Length < 1024;
+        }
         //private static Vector Convert(Vector source, Func<double, double> func)
         //{
         //    double[] result = new double[source._total];

@@ -99,7 +99,7 @@
         {
             if (vertexes == null || vertexes.Length != 4)
                 return false;
-            if (MathUtilHelper.HaveRepeated(vertexes))
+            if (CommonHelper.HaveRepeated(vertexes))
                 return false;
             //邻边需垂直
             if (!(vertexes[1] - vertexes[0]).IsVertical(vertexes[2] - vertexes[1]))

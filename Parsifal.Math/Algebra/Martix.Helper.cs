@@ -40,6 +40,13 @@
         {
             _elements[row * _colCount + column] = value;
         }
+        /// <summary>是否不应使用并行</summary>
+        /// <remarks>用于指示在使用<b>原生算法</b>时是否使用并行运算</remarks>
+        /// <returns>不应使用返回true;酌情可使用并行时返回false</returns>
+        private bool ShouldNotUseParallel()
+        {//过小阶的矩阵采用并行会导致不必要的开销，而失去计算优势
+            return System.Math.Max(_rowCount, _colCount) < 32;
+        }
         private void CheckRowIndex(int rowIndex)
         {
             if (rowIndex < 0 || rowIndex >= _rowCount)
@@ -78,11 +85,6 @@
         private static void CheckMultipliable(Matrix matrix, Vector vector)
         {
             if (matrix._colCount != vector.Dimension)
-                ThrowHelper.ThrowDimensionDontMatchException();
-        }
-        private static void CheckMultipliable(Vector vector, Matrix matrix)
-        {
-            if (matrix._rowCount != vector.Dimension)
                 ThrowHelper.ThrowDimensionDontMatchException();
         }
     }

@@ -161,7 +161,7 @@ namespace Parsifal.Math.Geometry
         {
             if (vertexes == null || vertexes.Length != 3)
                 return false;
-            if (MathUtilHelper.HaveRepeated(vertexes))
+            if (CommonHelper.HaveRepeated(vertexes))
                 return false;
             if (Parsifal.Math.Algorithm.GeometryAlgorithm.IsCollinearity(vertexes[0], vertexes[1], vertexes[2]))
                 return false;

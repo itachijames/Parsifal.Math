@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Parsifal.Math
 {
-    public class MathUtilHelper
+    internal class CommonHelper
     {
         /// <summary>
         /// 是否有重复项
@@ -35,14 +35,13 @@ namespace Parsifal.Math
         /// <param name="second">集合B</param>
         /// <returns>相同时返回true,否则false</returns>
         public static bool IsEquivalent<T>(IEnumerable<T> first, IEnumerable<T> second)
-            where T : IEquatable<T>
         {
             if (ReferenceEquals(first, second))
                 return true;
-            if (first == null)
-                throw new ArgumentNullException(nameof(first));
-            if (second == null)
-                throw new ArgumentNullException(nameof(second));
+            if (first is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(first));
+            if (second is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(second));
 
             return first.Count() == second.Count()
                 && !first.Except(second).Any();

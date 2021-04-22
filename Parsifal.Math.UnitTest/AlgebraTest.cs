@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Parsifal.Math.UnitTest
 {
-    public class MatrixTest
+    public class AlgebraTest
     {
         [Fact]
         public void MatrixBaseTest()
@@ -28,6 +28,14 @@ namespace Parsifal.Math.UnitTest
             var strMatSub = matSub.ToString();
             Assert.Equal(6, matSub.Count);
 
+        }
+
+        [Fact]
+        public void VectorTest()
+        {
+            var element = new double[] { 1, 3, 5, 7 };
+            var vec = new Vector(element);
+            vec.Clear();
         }
     }
 }

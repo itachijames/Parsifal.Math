@@ -3,20 +3,25 @@ using Xunit;
 
 namespace Parsifal.Math.UnitTest
 {
-    public class CommonPartTest
+    public class GeometryTest
     {
-
         [Fact]
         public void VectorTest()
         {
-            Assert.False(MathUtilHelper.HaveRepeated(1, 2, 3, 4));
-
             var vector = new Vector2D(1, 3);
             var normalVec = new Vector2D(0, -1);
             var reflectedVec = Vector2D.Reflect(vector, normalVec);
 
             var vn = vector.Normalize();
             Assert.True(vector.IsParallel(vn));
+        }
+
+        [Fact]
+        public void SegmentTest()
+        {
+            var segment = new Segment(new Point2D(0, 0), new Point2D(2, 2));
+            var point = new Point2D(2, 0);
+            Assert.Equal(new Point2D(2d / 2, 2d / 2), segment.GetLine().GetFootpoint(point));
         }
 
         [Fact]
@@ -46,38 +51,25 @@ namespace Parsifal.Math.UnitTest
             var fp = l8.GetFootpoint(p3);
         }
 
-        private Polygon GetPolygon()
-        {
-            var vertexes = new Point2D[]
-            {
-                //new Point2D(0,0),
-                //new Point2D(5,0),
-                //new Point2D(5,5),
-                //new Point2D(0,5)
-
-                new Point2D(2,1.5),
-                new Point2D(4,-3),
-                new Point2D(1.5,-2),
-                new Point2D(-2,-3),
-                new Point2D(-1,2)
-            };
-            return new Polygon(vertexes);
-        }
-
         [Fact]
         public void PolygonTest()
         {
             var polygon = GetPolygon();
             Assert.False(polygon.IsConvex());
             //Assert.True(polygon.GetArea().IsEqual(25));
-        }
 
-        private Triangle GetTriangle()
-        {
-            var p1 = new Point2D(0, 0);
-            var p2 = new Point2D(2, 0);
-            var p3 = new Point2D(4, 2);
-            return new Triangle(p1, p2, p3);
+            static Polygon GetPolygon()
+            {
+                var vertexes = new Point2D[]
+                {
+                    new Point2D(2,1.5),
+                    new Point2D(4,-3),
+                    new Point2D(1.5,-2),
+                    new Point2D(-2,-3),
+                    new Point2D(-1,2)
+                };
+                return new Polygon(vertexes);
+            }
         }
 
         [Fact]
@@ -85,42 +77,13 @@ namespace Parsifal.Math.UnitTest
         {
             var triangle = GetTriangle();
             Assert.True(triangle.GetTriangleType() == AngleType.Obtuse);
-        }
 
-
-        [Fact]
-        public void AngleTest()
-        {
-            var angle = new Angle(4.2 * 3.14);
-            Assert.True(angle.Type == AngleType.Acute);
-        }
-
-        [Fact]
-        public void Test1()
-        {
-            var ne = GetNegEpsilon();
-            Assert.Equal(CalculateHelper.NegativeMachineEpsilon, ne);
-            var pe = GetPosEpsilon();
-            Assert.Equal(CalculateHelper.PositiveMachineEpsilon, pe);
-
-            static double GetNegEpsilon()
+            static Triangle GetTriangle()
             {
-                double eps = 1.0d;
-
-                while ((1.0d - (eps / 2.0d)) < 1.0d)
-                    eps /= 2.0d;
-
-                return eps;
-            }
-
-            static double GetPosEpsilon()
-            {
-                double eps = 1.0d;
-
-                while ((1.0d + (eps / 2.0d)) > 1.0d)
-                    eps /= 2.0d;
-
-                return eps;
+                var p1 = new Point2D(0, 0);
+                var p2 = new Point2D(2, 0);
+                var p3 = new Point2D(4, 2);
+                return new Triangle(p1, p2, p3);
             }
         }
     }
