@@ -57,6 +57,13 @@
             if (columnIndex < 0 || columnIndex >= _colCount)
                 ThrowHelper.ThrowIndexOutOfRangeException(nameof(columnIndex));
         }
+        private static void CheckValidRowAndColumn(int rows, int columns)
+        {
+            if (rows < 1)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
+            if (columns < 1)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
+        }
         private static void CheckSquareMatrix(Matrix matrix)
         {
             if (!matrix.IsSquare)
@@ -65,27 +72,32 @@
         private static void CheckSameDimension(Matrix left, Matrix right)
         {
             if (left._rowCount != right._rowCount || left._colCount != right._colCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(left, right);
         }
         private static void CheckSameRow(Matrix left, Matrix right)
         {
             if (left._rowCount != right._rowCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(left, right);
         }
         private static void CheckSameColumn(Matrix left, Matrix right)
         {
             if (left._colCount != right._colCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(left, right);
         }
         private static void CheckMultipliable(Matrix left, Matrix right)
         {
             if (left._colCount != right._rowCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(left, right);
         }
         private static void CheckMultipliable(Matrix matrix, Vector vector)
         {
             if (matrix._colCount != vector.Dimension)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(matrix, vector);
+        }
+        private static void CheckMultipliable(Vector vector, Matrix matrix)
+        {
+            if (matrix._rowCount != vector.Dimension)
+                ThrowHelper.ThrowDimensionDontMatchException(vector, matrix);
         }
     }
 }

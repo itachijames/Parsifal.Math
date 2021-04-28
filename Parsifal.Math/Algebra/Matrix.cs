@@ -14,7 +14,7 @@ namespace Parsifal.Math.Algebra
     /// </summary>
     [Serializable]
     [DebuggerDisplay("Matrix ({Rows} × {Columns})")]
-    public sealed partial class Matrix : IEnumerable<double>, IEquatable<Matrix>, ICloneable, IFormattable
+    public partial class Matrix : IEnumerable<double>, IEquatable<Matrix>, ICloneable, IFormattable
     {
         #region field
         private const int DoubleSize = sizeof(double);
@@ -27,6 +27,7 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region property
+        internal double[] Storage { get => _elements; }
         /// <summary>
         /// 行数
         /// </summary>
@@ -81,7 +82,12 @@ namespace Parsifal.Math.Algebra
         /// <param name="rows">行数</param>
         /// <param name="columns">列数</param>
         public Matrix(int rows, int columns)
-            : this(rows, columns, true) { }
+        {
+            CheckValidRowAndColumn(rows, columns);
+            _rowCount = rows;
+            _colCount = columns;
+            _elements = new double[rows * columns];
+        }
         /// <summary>
         /// 根据二维数组创建矩阵
         /// </summary>
@@ -104,122 +110,28 @@ namespace Parsifal.Math.Algebra
         /// <param name="elements">各项元素(按行顺序分布)</param>
         public Matrix(int rows, int columns, double[] elements)
             : this(rows, columns, elements, true) { }
-        private Matrix(int rows, int columns, bool check)
+        internal Matrix(int rows, int columns, double[] elements, bool check)
         {
             if (check)
             {
-                if (rows < 1)
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-                if (columns < 1)
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
-            }
-            _rowCount = rows;
-            _colCount = columns;
-            _elements = new double[rows * columns];
-        }
-        private Matrix(int rows, int columns, double[] elements, bool isCopy)
-        {
-            if (isCopy)
-            {
-                if (rows < 1)
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-                if (columns < 1)
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
+                CheckValidRowAndColumn(rows, columns);
                 if (elements is null)
                     ThrowHelper.ThrowArgumentNullException(nameof(elements));
                 int tempLength = rows * columns;
                 if (tempLength != elements.Length)
                     ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(elements));
-                _elements = new double[tempLength];
-                Buffer.BlockCopy(elements, 0, _elements, 0, tempLength * DoubleSize);
+
             }
-            else
-            {
-                _elements = elements;
-            }
+            _elements = elements;
             _rowCount = rows;
             _colCount = columns;
-        }
-        #endregion
-
-        #region creater
-        /// <summary>
-        /// 零矩阵
-        /// </summary>
-        /// <param name="order">矩阵阶数</param>
-        /// <returns></returns>
-        public static Matrix CreateZero(int order)
-        {
-            return CreateZero(order, order);
-        }
-        /// <summary>
-        /// 零矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
-        /// <returns></returns>
-        public static Matrix CreateZero(int rows, int columns)
-        {
-            return new Matrix(rows, columns, true);
-        }
-        /// <summary>
-        /// 对角线矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
-        /// <param name="init">对角线元素初始化委托</param>
-        /// <returns></returns>
-        public static Matrix CreateDiagonal(int rows, int columns, Func<int, double> init)
-        {
-            if (rows < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-            if (columns < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
-            if (init is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(init));
-            var result = new Matrix(rows, columns, false);
-            var min = Math.Min(rows, columns);
-            for (int i = 0; i < min; i++)
-            {
-                result.Set(i, i, init(i));
-            }
-            return result;
-        }
-        /// <summary>
-        /// 单位矩阵
-        /// </summary>
-        /// <param name="order">矩阵阶数</param>
-        /// <returns></returns>
-        public static Matrix CreateIdentity(int order)
-        {
-            if (order < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(order));
-            var result = new double[order * order];
-            for (int i = 0; i < order; i++)
-            {
-                result[i * (order + 1)] = 1d;
-            }
-            return new Matrix(order, order, result, false);
         }
         #endregion
 
         #region IEquatable
         public bool Equals(Matrix other)
         {
-            if (other is null)
-                return false;
-            if (_rowCount != other._rowCount || _colCount != other._colCount)
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                if (!Get(i).Equals(other.Get(i)))
-                {//依次比较所有元素值
-                    return false;
-                }
-            }
-            return true;
+            return this == other;
         }
         #endregion
 
@@ -247,7 +159,9 @@ namespace Parsifal.Math.Algebra
         }
         public Matrix Clone()
         {
-            return new Matrix(_rowCount, _colCount, _elements, true);
+            var date = new double[_elements.Length];
+            Buffer.BlockCopy(_elements, 0, date, 0, _elements.Length * DoubleSize);
+            return new Matrix(_rowCount, _colCount, date, false);
         }
         #endregion
 
@@ -269,6 +183,9 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region public
+        public override bool Equals(object obj) => obj is Matrix mat && Equals(mat);
+        public override int GetHashCode() => HashCode.Combine(_rowCount, _colCount, _elements.GetHashCode());
+        public override string ToString() => ToString("G", CultureInfo.CurrentCulture);
         /// <summary>
         /// 是否为对称矩阵
         /// </summary>
@@ -280,7 +197,7 @@ namespace Parsifal.Math.Algebra
             {
                 for (var j = i + 1; j < _colCount; j++)
                 {
-                    if (!Get(i, j).Equals(Get(j, i)))
+                    if (!Get(i, j).IsEqual(Get(j, i)))
                     {
                         return false;
                     }
@@ -307,9 +224,10 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 余子式
         /// </summary>
-        /// <param name="row">元素行索引</param>
-        /// <param name="col">元素列索引</param>
-        public double Cofactor(int row, int col)
+        /// <param name="rowIndex">行索引</param>
+        /// <param name="columnIndex">列索引</param>
+        /// <returns>指定元素的代数余子式</returns>
+        public double Cofactor(int rowIndex, int columnIndex)
         {
             throw new NotImplementedException();
         }
@@ -327,9 +245,7 @@ namespace Parsifal.Math.Algebra
         {
             throw new NotImplementedException();
         }
-        /// <summary>
-        /// 迹
-        /// </summary>
+        /// <summary>迹</summary>
         /// <remarks>主对角线元素之和</remarks>
         public double Trace()
         {
@@ -342,9 +258,9 @@ namespace Parsifal.Math.Algebra
             return result;
         }
         /// <summary>
-        /// 逆矩阵
+        /// 求逆矩阵
         /// </summary>
-        /// <returns></returns>
+        /// <returns>逆矩阵</returns>
         public Matrix Inverse()
         {
             CheckSquareMatrix(this);
@@ -353,18 +269,17 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 伪逆矩阵
         /// </summary>
-        /// <returns></returns>
         public Matrix PseudoInverse()
         {
             throw new NotImplementedException();
         }
         /// <summary>
-        /// 转置矩阵
+        /// 获取转置矩阵
         /// </summary>
-        /// <returns></returns>
+        /// <returns>转置矩阵</returns>
         public Matrix Transpose()
         {
-            var result = new Matrix(_colCount, _rowCount, false);
+            var result = new Matrix(_colCount, _rowCount);
             for (int i = 0; i < result._rowCount; i++)
             {
                 for (int j = 0; j < result._colCount; j++)
@@ -386,10 +301,9 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 下三角矩阵
         /// </summary>
-        /// <returns></returns>
         public Matrix LowerTriangle()
         {
-            var result = new Matrix(_rowCount, _colCount, false);
+            var result = new Matrix(_rowCount, _colCount);
             for (int i = 0; i < _rowCount; i++)
             {
                 for (int j = 0; j <= i && j < _colCount; j++)
@@ -402,10 +316,9 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 上三角矩阵
         /// </summary>
-        /// <returns></returns>
         public Matrix UpperTriangle()
         {
-            var result = new Matrix(_rowCount, _colCount, false);
+            var result = new Matrix(_rowCount, _colCount);
             for (int i = 0; i < _rowCount; i++)
             {
                 for (int j = i; j < _colCount; j++)
@@ -418,7 +331,6 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 核
         /// </summary>
-        /// <returns></returns>
         public double[] Kernel()
         {
             throw new NotImplementedException();
@@ -426,22 +338,18 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 象
         /// </summary>
-        /// <returns></returns>
         public double[] Image()
         {
             throw new NotImplementedException();
         }
-        public override bool Equals(object obj) => obj is Matrix mat && Equals(mat);
-        public override int GetHashCode() => HashCode.Combine(_rowCount, _colCount, _elements.GetHashCode());
-        public override string ToString() => ToString("G", CultureInfo.CurrentCulture);
         #endregion
 
         #region Norm
         /// <summary>
-        /// L1范数
+        /// 1范数
         /// </summary>
         /// <remarks>列向量绝对值之和的最大值</remarks>
-        public double L1Norm()
+        public double OneNorm()
         {
             var norm = 0d;
             for (int i = 0; i < _colCount; i++)
@@ -456,10 +364,10 @@ namespace Parsifal.Math.Algebra
             return norm;
         }
         /// <summary>
-        /// L2范数
+        /// 2范数
         /// </summary>
         /// <remarks>(AT)*A 的最大特征值开方 √(λmax)</remarks>
-        public double L2Norm()
+        public double TwoNorm()
         {
             throw new NotImplementedException();
         }
@@ -532,6 +440,7 @@ namespace Parsifal.Math.Algebra
         /// 获取行向量
         /// </summary>
         /// <param name="rowIndex">行索引</param>
+        /// <returns>行向量</returns>
         public Vector GetRowVector(int rowIndex)
         {
             return GetRowArray(rowIndex);
@@ -566,6 +475,7 @@ namespace Parsifal.Math.Algebra
         /// 获取列向量
         /// </summary>
         /// <param name="columnIndex">列索引</param>
+        /// <returns>列向量</returns>
         public Vector GetColumnVector(int columnIndex)
         {
             return GetColumnArray(columnIndex);
@@ -606,7 +516,7 @@ namespace Parsifal.Math.Algebra
             if (row is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(row));
             if (row.Length != _colCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(this, row);
             Buffer.BlockCopy(row, 0, _elements, rowIndex * _colCount * DoubleSize, _colCount * DoubleSize);
         }
         /// <summary>
@@ -620,7 +530,7 @@ namespace Parsifal.Math.Algebra
             if (row is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(row));
             if (row.Dimension != _colCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(this, row);
             for (int i = 0; i < _colCount; i++)
             {
                 Set(rowIndex, i, row.Get(i));
@@ -637,7 +547,7 @@ namespace Parsifal.Math.Algebra
             if (column is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(column));
             if (column.Length != _rowCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(this, column);
             for (int i = 0; i < _rowCount; i++)
             {
                 Set(i, columnIndex, column[i]);
@@ -654,7 +564,7 @@ namespace Parsifal.Math.Algebra
             if (column is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(column));
             if (column.Dimension != _rowCount)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(this, column);
             for (int i = 0; i < _rowCount; i++)
             {
                 Set(i, columnIndex, column.Get(i));

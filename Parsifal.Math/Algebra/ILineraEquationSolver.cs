@@ -12,7 +12,7 @@
         /// <returns>矩阵,<c>X</c></returns>
         Matrix Solve(Matrix input);
         /// <summary>
-        /// 解方程 <c>Ax = b</c>
+        /// 解方程: <c>Ax = b</c>
         /// </summary>
         /// <param name="input">向量,<c>b</c></param>
         /// <returns>向量,<c>x</c></returns>

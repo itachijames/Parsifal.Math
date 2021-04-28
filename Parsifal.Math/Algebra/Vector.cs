@@ -13,7 +13,7 @@ namespace Parsifal.Math.Algebra
     /// 向量
     /// </summary>
     [Serializable]
-    [DebuggerDisplay("Vector ({Count})")]
+    [DebuggerDisplay("Vector ({Dimension})")]
     public sealed partial class Vector : IEnumerable<double>, IEquatable<Vector>, ICloneable, IFormattable
     {
         #region field
@@ -22,6 +22,7 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region property
+        internal double[] Storage { get => _elements; }
         public double this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,10 +149,10 @@ namespace Parsifal.Math.Algebra
 
         #region Norm
         /// <summary>
-        /// L0范数
+        /// 0范数
         /// </summary>
         /// <remarks>非0元素个数</remarks>
-        public double L0Norm()
+        public double ZeroNorm()
         {
             var count = 0;
             for (int i = 0; i < _elements.Length; i++)
@@ -162,10 +163,10 @@ namespace Parsifal.Math.Algebra
             return count;
         }
         /// <summary>
-        /// L1范数
+        /// 1范数
         /// </summary>
         /// <remarks>元素绝对值之和</remarks>
-        public double L1Norm()
+        public double OneNorm()
         {
             double result = 0d;
             for (int i = 0; i < _elements.Length; i++)
@@ -175,10 +176,10 @@ namespace Parsifal.Math.Algebra
             return result;
         }
         /// <summary>
-        /// L2范数
+        /// 2范数
         /// </summary>
         /// <remarks>元素绝对值平方和的开方</remarks>
-        public double L2Norm()
+        public double TwoNorm()
         {
             return Math.Sqrt(DotProduct(this, this));
         }
@@ -191,9 +192,9 @@ namespace Parsifal.Math.Algebra
             if (p.IsLess(0d))
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(p));
             if (p.IsEqual(1d))
-                return L1Norm();
+                return OneNorm();
             if (p.IsEqual(2d))
-                return L2Norm();
+                return TwoNorm();
             //元素绝对值的p次方之和的1/p次幂
             double result = 0d;
             for (var i = 0; i < _elements.Length; i++)
@@ -246,7 +247,7 @@ namespace Parsifal.Math.Algebra
         {
             var items = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
-            return new Matrix(1, _elements.Length, items);
+            return new Matrix(1, _elements.Length, items, false);
         }
         /// <summary>
         /// 转为列矩阵
@@ -255,7 +256,7 @@ namespace Parsifal.Math.Algebra
         {
             var items = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
-            return new Matrix(_elements.Length, 1, items);
+            return new Matrix(_elements.Length, 1, items, false);
         }
         /// <summary>
         /// 转为一维数组

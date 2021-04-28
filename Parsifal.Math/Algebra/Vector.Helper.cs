@@ -44,7 +44,7 @@
         private static void CheckSameDimension(Vector left, Vector right)
         {
             if (left._elements.Length != right._elements.Length)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(left, right);
         }
     }
 }

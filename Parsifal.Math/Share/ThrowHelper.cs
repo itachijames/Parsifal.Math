@@ -59,6 +59,6 @@ namespace Parsifal.Math
         /// 维度匹配异常
         /// </summary>
         [DoesNotReturn]
-        public static void ThrowDimensionDontMatchException() => throw new DimensionMatchException();
+        public static void ThrowDimensionDontMatchException(params object[] arguments) => throw new DimensionMatchException(arguments);
     }
 }

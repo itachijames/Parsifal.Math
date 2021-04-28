@@ -51,6 +51,7 @@ namespace Parsifal.Math
         public static void UseDefault()
         {//使用原生实现
             CurrentProvider = LogicProvider.Native;
+            //todo
         }
         /// <summary>
         /// 指定算法逻辑是否可用
@@ -78,7 +79,7 @@ namespace Parsifal.Math
         /// 当前环境描述
         /// </summary>
         /// <returns></returns>
-        public static string EnvironmentDescribe()
+        internal static string EnvironmentDescribe()
         {
             var versionAttribute = typeof(LogicControl).GetTypeInfo().Assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
             var sb = new StringBuilder();
@@ -104,11 +105,11 @@ namespace Parsifal.Math
         /// </summary>
         Native,
         /// <summary>
-        /// (Intel) MKL
+        /// Intel MKL
         /// </summary>
         MKL,
         /// <summary>
-        /// (Nvidia) CUDA
+        /// Nvidia CUDA
         /// </summary>
         CUDA
     }

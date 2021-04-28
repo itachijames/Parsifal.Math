@@ -75,7 +75,7 @@ namespace Parsifal.Math.Algebra
             if (input == null)
                 ThrowHelper.ThrowArgumentNullException(nameof(input));
             if (_mat.Rows != input.Rows)
-                ThrowHelper.ThrowDimensionDontMatchException();
+                ThrowHelper.ThrowDimensionDontMatchException(_mat, input);
             var result = input.Clone();
             //todo 
 
