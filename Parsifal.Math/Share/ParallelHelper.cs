@@ -10,7 +10,6 @@ namespace Parsifal.Math
         /// <returns>不应使用并行时返回true;否则false</returns>
         public static bool ShouldNotUseParallelism()
         {
-            //单核处理器无需并行
             return LogicControl.MaxDegreeOfParallelism < 2;
         }
         /// <summary>

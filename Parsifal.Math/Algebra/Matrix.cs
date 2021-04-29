@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Parsifal.Math.Algebra
@@ -52,14 +51,12 @@ namespace Parsifal.Math.Algebra
         /// <returns></returns>
         public double this[int rowIndex, int colIndex]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 CheckRowIndex(rowIndex);
                 CheckColumnIndex(colIndex);
                 return Get(rowIndex, colIndex);
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 CheckRowIndex(rowIndex);
@@ -98,7 +95,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentNullException(nameof(elements));
             _rowCount = elements.GetLength(0);
             _colCount = elements.GetLength(1);
-            var temp = _rowCount * _colCount;
+            int temp = _rowCount * _colCount;
             _elements = new double[temp];
             Buffer.BlockCopy(elements, 0, _elements, 0, temp * DoubleSize);//二维数组默认按行存储，直接复制
         }
@@ -159,7 +156,7 @@ namespace Parsifal.Math.Algebra
         }
         public Matrix Clone()
         {
-            var date = new double[_elements.Length];
+            double[] date = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, date, 0, _elements.Length * DoubleSize);
             return new Matrix(_rowCount, _colCount, date, false);
         }
@@ -213,6 +210,10 @@ namespace Parsifal.Math.Algebra
         {
             throw new NotImplementedException();
         }
+        public Svd Svd()
+        {
+            throw new NotImplementedException();
+        }
         /// <summary>
         /// 行列式
         /// </summary>
@@ -250,7 +251,7 @@ namespace Parsifal.Math.Algebra
         public double Trace()
         {
             CheckSquareMatrix(this);
-            var result = 0d;
+            double result = 0d;
             for (int i = 0; i < _rowCount; i++)
             {
                 result += Get(i, i);
@@ -304,6 +305,7 @@ namespace Parsifal.Math.Algebra
         public Matrix LowerTriangle()
         {
             var result = new Matrix(_rowCount, _colCount);
+            //todo 用Buffer.BlockCopy实现
             for (int i = 0; i < _rowCount; i++)
             {
                 for (int j = 0; j <= i && j < _colCount; j++)
@@ -319,6 +321,7 @@ namespace Parsifal.Math.Algebra
         public Matrix UpperTriangle()
         {
             var result = new Matrix(_rowCount, _colCount);
+            //todo 用Buffer.BlockCopy实现
             for (int i = 0; i < _rowCount; i++)
             {
                 for (int j = i; j < _colCount; j++)
@@ -351,10 +354,10 @@ namespace Parsifal.Math.Algebra
         /// <remarks>列向量绝对值之和的最大值</remarks>
         public double OneNorm()
         {
-            var norm = 0d;
+            double norm = 0d;
             for (int i = 0; i < _colCount; i++)
             {
-                var temp = 0d;
+                double temp = 0d;
                 for (int j = 0; j < _rowCount; j++)
                 {
                     temp += Math.Abs(Get(j, i));
@@ -432,7 +435,7 @@ namespace Parsifal.Math.Algebra
         public double[] GetRowArray(int rowIndex)
         {
             CheckRowIndex(rowIndex);
-            var result = new double[_colCount];
+            double[] result = new double[_colCount];
             Buffer.BlockCopy(_elements, rowIndex * _colCount * DoubleSize, result, 0, _colCount * DoubleSize);
             return result;
         }
@@ -464,7 +467,7 @@ namespace Parsifal.Math.Algebra
         public double[] GetColumnArray(int columnIndex)
         {
             CheckColumnIndex(columnIndex);
-            var result = new double[_rowCount];
+            double[] result = new double[_rowCount];
             for (int i = 0; i < _rowCount; i++)
             {
                 result[i] = Get(i, columnIndex);
@@ -490,20 +493,20 @@ namespace Parsifal.Math.Algebra
         /// <returns>子矩阵</returns>
         public Matrix GetSubMatrix(int rowIndex, int rCount, int columnIndex, int cCount)
         {
-            if (rCount <= 0 || cCount <= 0)
+            if (rCount < 1 || cCount < 1)
                 ThrowHelper.ThrowIllegalArgumentException(ErrorReason.NotPositiveParameter);
             if (rowIndex < 0 || rowIndex + rCount > _rowCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             if (columnIndex < 0 || columnIndex + cCount > _colCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnIndex));
-            var result = new double[rCount * cCount];
+            double[] data = new double[rCount * cCount];
             for (int i = 0; i < rCount; i++)
             {
                 Buffer.BlockCopy(_elements, ((rowIndex + i) * _colCount + columnIndex) * DoubleSize,
-                    result, i * cCount * DoubleSize,
+                    data, i * cCount * DoubleSize,
                     cCount * DoubleSize);
             }
-            return new Matrix(rCount, cCount, result, false);
+            return new Matrix(rCount, cCount, data, false);
         }
         /// <summary>
         /// 设置行
@@ -571,17 +574,33 @@ namespace Parsifal.Math.Algebra
             }
         }
         /// <summary>
+        /// 设置子矩阵
+        /// </summary>
+        /// <param name="rowIndex">起始行索引</param>
+        /// <param name="columnIndex">起始列索引</param>
+        /// <param name="subMatrix">子矩阵</param>
+        public void SetSubMatrix(int rowIndex, int columnIndex, Matrix subMatrix)
+        {
+            if (subMatrix is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(subMatrix));
+            if (rowIndex < 0 || rowIndex + subMatrix._rowCount > _rowCount)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
+            if (columnIndex < 0 || columnIndex + subMatrix._colCount > _colCount)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnIndex));
+            //todo
+        }
+        /// <summary>
         /// 添加到下方
         /// </summary>
         /// <param name="matrix">待添加矩阵</param>
         public Matrix ConcatenateBelow(Matrix matrix)
         {
             CheckSameColumn(this, matrix);
-            var rows = _rowCount + matrix._rowCount;
-            var result = new double[rows * _colCount];
-            Buffer.BlockCopy(_elements, 0, result, 0, _elements.Length * DoubleSize);
-            Buffer.BlockCopy(matrix._elements, 0, result, _elements.Length * DoubleSize, matrix._elements.Length * DoubleSize);
-            return new Matrix(rows, _colCount, result, false);
+            int rows = _rowCount + matrix._rowCount;
+            double[] data = new double[rows * _colCount];
+            Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
+            Buffer.BlockCopy(matrix._elements, 0, data, _elements.Length * DoubleSize, matrix._elements.Length * DoubleSize);
+            return new Matrix(rows, _colCount, data, false);
         }
         /// <summary>
         /// 添加到右方
@@ -590,8 +609,8 @@ namespace Parsifal.Math.Algebra
         public Matrix ConcatenateRight(Matrix matrix)
         {
             CheckSameRow(this, matrix);
-            var cols = _colCount + matrix._colCount;
-            var result = new double[_rowCount * cols];
+            int cols = _colCount + matrix._colCount;
+            double[] result = new double[_rowCount * cols];
             for (int i = 0; i < _rowCount; i++)
             {
                 Buffer.BlockCopy(_elements, i * _colCount * DoubleSize, result, i * cols * DoubleSize, _colCount * DoubleSize);

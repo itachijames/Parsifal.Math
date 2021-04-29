@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Parsifal.Math.Algebra
 {
@@ -25,13 +24,11 @@ namespace Parsifal.Math.Algebra
         internal double[] Storage { get => _elements; }
         public double this[int index]
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 CheckRange(index);
                 return Get(index);
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 CheckRange(index);
@@ -60,20 +57,10 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         /// <param name="element">初始元素</param>
         public Vector(double[] element)
-            : this(element, true) { }
-        private Vector(double[] element, bool isCopy)
         {
             if (element is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(element));
-            if (isCopy)
-            {
-                _elements = new double[element.Length];
-                Buffer.BlockCopy(element, 0, _elements, 0, element.Length * DoubleSize);
-            }
-            else
-            {
-                _elements = element;
-            }
+            _elements = element;
         }
         #endregion
 
@@ -97,20 +84,7 @@ namespace Parsifal.Math.Algebra
         #region IEquatable
         public bool Equals(Vector other)
         {
-            if (other is null)
-                return false;
-            if (_elements.Length != other._elements.Length)
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                if (Get(i).Equals(other.Get(i)))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this == other;
         }
         #endregion
 
@@ -121,8 +95,11 @@ namespace Parsifal.Math.Algebra
         }
         public Vector Clone()
         {
-            return new Vector(_elements, true);
+            double[] data = new double[_elements.Length];
+            Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
+            return new Vector(_elements);
         }
+
         #endregion
 
         #region IFormattable
@@ -133,15 +110,6 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region public
-        /// <summary>
-        /// 向量点积/内积(Inner Product, dot product)
-        /// </summary>
-        /// <param name="vector"></param>
-        /// <returns>数量积</returns>
-        public double DotProduct(Vector vector)
-        {
-            return DotProduct(this, vector);
-        }
         public override bool Equals(object obj) => obj is Vector vector && Equals(vector);
         public override int GetHashCode() => _elements.GetHashCode();
         public override string ToString() => ToString("G", CultureInfo.CurrentCulture);
@@ -154,7 +122,7 @@ namespace Parsifal.Math.Algebra
         /// <remarks>非0元素个数</remarks>
         public double ZeroNorm()
         {
-            var count = 0;
+            int count = 0;
             for (int i = 0; i < _elements.Length; i++)
             {
                 if (!Get(i).IsZero())
@@ -197,7 +165,7 @@ namespace Parsifal.Math.Algebra
                 return TwoNorm();
             //元素绝对值的p次方之和的1/p次幂
             double result = 0d;
-            for (var i = 0; i < _elements.Length; i++)
+            for (int i = 0; i < _elements.Length; i++)
             {
                 result += Math.Pow(Math.Abs(Get(i)), p);
             }
@@ -206,6 +174,37 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region VectorOperation
+        /// <summary>
+        /// 获取子向量
+        /// </summary>
+        /// <param name="index">起始索引</param>
+        /// <param name="count">项数</param>
+        /// <returns>子向量</returns>
+        public Vector GetSubVector(int index, int count)
+        {
+            if (count < 1)
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.NotPositiveParameter);
+            if (index < 0 || index + count > _elements.Length)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
+            double[] data = new double[count];
+            Buffer.BlockCopy(_elements, index * DoubleSize, data, 0, count * DoubleSize);
+            return new Vector(data);
+        }
+        /// <summary>
+        /// 设置子向量
+        /// </summary>
+        /// <param name="index">起始索引</param>
+        /// <param name="subVector">子向量</param>
+        public void SetSubVector(int index, Vector subVector)
+        {
+            if (subVector is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(subVector));
+            if (index < 0 || index + subVector._elements.Length > _elements.Length)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
+            Buffer.BlockCopy(subVector._elements, 0,
+                _elements, index * DoubleSize,
+                subVector._elements.Length * DoubleSize);
+        }
         /// <summary>
         /// 清空向量
         /// </summary>
@@ -245,7 +244,7 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         public Matrix ToRowMatrix()
         {
-            var items = new double[_elements.Length];
+            double[] items = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
             return new Matrix(1, _elements.Length, items, false);
         }
@@ -254,7 +253,7 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         public Matrix ToColumnMatrix()
         {
-            var items = new double[_elements.Length];
+            double[] items = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
             return new Matrix(_elements.Length, 1, items, false);
         }

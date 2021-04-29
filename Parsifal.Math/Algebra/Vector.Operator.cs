@@ -2,16 +2,14 @@
 {
     public partial class Vector
     {
+        #region static
         public static Vector Negate(Vector vector)
         {
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            var result = new double[vector._elements.Length];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = -1d * vector.Get(i);
-            }
-            return result;
+            var data = new double[vector._elements.Length];
+            LogicControl.LogicProvider.ScalarArray(-1, vector._elements, data);
+            return data;
         }
         public static Vector Add(Vector left, Vector right)
         {
@@ -20,12 +18,9 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            var result = new double[left._elements.Length];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = left.Get(i) + right.Get(i);
-            }
-            return result;
+            var data = new double[left._elements.Length];
+            LogicControl.LogicProvider.AddArray(left._elements, right._elements, data);
+            return data;
         }
         public static Vector Subtract(Vector left, Vector right)
         {
@@ -34,23 +29,17 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            var result = new double[left._elements.Length];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = left.Get(i) - right.Get(i);
-            }
-            return result;
+            var data = new double[left._elements.Length];
+            LogicControl.LogicProvider.SubtractArray(left._elements, right._elements, data);
+            return data;
         }
         public static Vector Multiply(Vector vector, double scalar)
         {
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            var result = new double[vector._elements.Length];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = vector.Get(i) * scalar;
-            }
-            return result;
+            var data = new double[vector._elements.Length];
+            LogicControl.LogicProvider.ScalarArray(scalar, vector._elements, data);
+            return data;
         }
         public static Vector Multiply(double scalar, Vector vector)
         {
@@ -68,17 +57,65 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
             double result = 0d;
-            for (int i = 0; i < left._elements.Length; i++)
-            {
-                result += left.Get(i) * right.Get(i);
-            }
+            LogicControl.LogicProvider.VectorDotProduct(left._elements, right._elements, result);
             return result;
         }
+        #endregion
+
+        #region instance
+        public void Negate()
+        {
+            for (int i = 0; i < _elements.Length; i++)
+            {
+                Set(i, -1 * Get(i));
+            }
+        }
+        public void Add(Vector vector)
+        {
+            if (vector is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(vector));
+            CheckSameDimension(this, vector);
+            for (int i = 0; i < _elements.Length; i++)
+            {
+                Set(i, Get(i) + vector.Get(i));
+            }
+        }
+        public void Subtract(Vector vector)
+        {
+            if (vector is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(vector));
+            CheckSameDimension(this, vector);
+            for (int i = 0; i < _elements.Length; i++)
+            {
+                Set(i, Get(i) - vector.Get(i));
+            }
+        }
+        public void Multiply(double scalar)
+        {
+            for (int i = 0; i < _elements.Length; i++)
+            {
+                Set(i, scalar * Get(i));
+            }
+        }
+        public void Divide(double scalar)
+        {
+            Multiply(1.0 / scalar);
+        }
+        /// <summary>
+        /// 向量点积/内积
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns>数量积</returns>
+        public double DotProduct(Vector vector)
+        {
+            return Vector.DotProduct(this, vector);
+        }
+        #endregion
 
         #region operator
         public static implicit operator Vector(double[] element)
         {
-            return new Vector(element, false);
+            return new Vector(element);
         }
         public static bool operator ==(Vector left, Vector right)
         {

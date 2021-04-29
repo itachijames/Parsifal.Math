@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Parsifal.Math
 {
-    public class LogicControl
+    public static class LogicControl
     {
         /// <summary>
         /// 当前算法逻辑提供/实现者
         /// </summary>
-        public static LogicProvider CurrentProvider { get; private set; }
+        public static ILogicProvider LogicProvider { get; private set; }
         private static int _maxDegreeOfParallelism;
         /// <summary>
         /// 最大并行数
@@ -27,48 +27,54 @@ namespace Parsifal.Math
         static LogicControl()
         {
             _maxDegreeOfParallelism = Environment.ProcessorCount;
+            UseDefault();
         }
 
         /// <summary>
-        /// 使用指定算法逻辑提供者
+        /// 使用指定算法逻辑
         /// </summary>
-        /// <param name="provider"></param>
-        public static void Use(LogicProvider provider)
+        /// <param name="providerType"></param>
+        public static bool Use(LogicProviderType providerType)
         {
-            if (IsAvaliable(provider))
+            if (IsAvaliable(providerType))
             {
-                CurrentProvider = provider;
+                switch (providerType)
+                {
+                    case LogicProviderType.Native:
+                        UseDefault();
+                        break;
+                    case LogicProviderType.MKL:
+                        //LogicProvider = new MklProvider();
+                        break;
+                    case LogicProviderType.CUDA:
+                        LogicProvider = new CudaProvider();
+                        break;
+                }
                 //todo
             }
-            else
-            {
-                UseDefault();
-            }
+            return false;
         }
         /// <summary>
         /// 使用默认实现
         /// </summary>
         public static void UseDefault()
         {//使用原生实现
-            CurrentProvider = LogicProvider.Native;
-            //todo
+            if (LogicProvider != null && typeof(NativeProvider) == LogicProvider.GetType())
+                return;
+            LogicProvider = new NativeProvider();
         }
         /// <summary>
         /// 指定算法逻辑是否可用
         /// </summary>
-        public static bool IsAvaliable(LogicProvider provider)
+        public static bool IsAvaliable(LogicProviderType providerType)
         {
-            switch (provider)
+            switch (providerType)
             {
-                case LogicProvider.Native:
+                case LogicProviderType.Native:
                     return true;
-                case LogicProvider.MKL:
-                    {//todo
-                    }
+                case LogicProviderType.MKL:
                     break;
-                case LogicProvider.CUDA:
-                    {//todo
-                    }
+                case LogicProviderType.CUDA:
                     break;
                 default:
                     throw new Exception(ErrorReason.UnknowType);
@@ -90,27 +96,12 @@ namespace Parsifal.Math
 #elif NET5_0_OR_GREATER
             sb.AppendLine("Built for .Net 5.0+");
 #endif
-            sb.AppendLine($"Logic Provider: {CurrentProvider}");
+            sb.AppendLine($"Logic Provider: {LogicProvider}");
             sb.AppendLine($"Operating System: {RuntimeInformation.OSDescription}");
             sb.AppendLine($"Operating System Architecture: {RuntimeInformation.OSArchitecture}");
             sb.AppendLine($"Framework: {RuntimeInformation.FrameworkDescription}");
             sb.AppendLine($"Process Architecture: {RuntimeInformation.ProcessArchitecture}");
             return sb.ToString();
         }
-    }
-    public enum LogicProvider
-    {
-        /// <summary>
-        /// 原生
-        /// </summary>
-        Native,
-        /// <summary>
-        /// Intel MKL
-        /// </summary>
-        MKL,
-        /// <summary>
-        /// Nvidia CUDA
-        /// </summary>
-        CUDA
     }
 }

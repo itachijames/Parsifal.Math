@@ -6,29 +6,24 @@ namespace Parsifal.Math.Algebra
     public partial class Matrix
     {
         #region static
-
-
         public static Matrix Negate(Matrix matrix)
         {
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            var result = new Matrix(matrix._rowCount, matrix._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
-            {
-                result.Set(i, -1 * matrix.Get(i));
-            }
-            return result;
+            double[] data = new double[matrix._elements.Length];
+            LogicControl.LogicProvider.ScalarArray(-1, matrix._elements, data);
+            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
         }
         public static Matrix Add(Matrix matrix, double scalar)
         {
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            var result = new Matrix(matrix._rowCount, matrix._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
+            double[] data = new double[matrix._elements.Length];
+            for (int i = 0; i < data.Length; i++)
             {
-                result.Set(i, scalar + matrix.Get(i));
+                data[i] = matrix.Get(i) + scalar;
             }
-            return result;
+            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
         }
         public static Matrix Add(double scalar, Matrix matrix)
         {
@@ -41,34 +36,24 @@ namespace Parsifal.Math.Algebra
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            var result = new Matrix(left._rowCount, left._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
-            {
-                result.Set(i, left.Get(i) + right.Get(i));
-            }
-            return result;
+            double[] data = new double[left._elements.Length];
+            LogicControl.LogicProvider.AddArray(left._elements, right._elements, data);
+            return new Matrix(left._rowCount, left._colCount, data, false);
         }
         public static Matrix Subtract(Matrix matrix, double scalar)
         {
-            if (matrix is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            var result = new Matrix(matrix._rowCount, matrix._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
-            {
-                result.Set(i, matrix.Get(i) - scalar);
-            }
-            return result;
+            return Matrix.Add(matrix, -1 * scalar);
         }
         public static Matrix Subtract(double scalar, Matrix matrix)
         {
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            var result = new Matrix(matrix._rowCount, matrix._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
+            double[] data = new double[matrix._elements.Length];
+            for (int i = 0; i < data.Length; i++)
             {
-                result.Set(i, scalar - matrix.Get(i));
+                data[i] = scalar - matrix.Get(i);
             }
-            return result;
+            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
         }
         public static Matrix Subtract(Matrix left, Matrix right)
         {
@@ -77,23 +62,17 @@ namespace Parsifal.Math.Algebra
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            var result = new Matrix(left._rowCount, left._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
-            {
-                result.Set(i, left.Get(i) - right.Get(i));
-            }
-            return result;
+            double[] data = new double[left._elements.Length];
+            LogicControl.LogicProvider.SubtractArray(left._elements, right._elements, data);
+            return new Matrix(left._rowCount, left._colCount, data, false);
         }
         public static Matrix Multiply(Matrix matrix, double scalar)
         {
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            var result = new Matrix(matrix._rowCount, matrix._colCount);
-            for (int i = 0; i < result._elements.Length; i++)
-            {
-                result.Set(i, scalar * matrix.Get(i));
-            }
-            return result;
+            double[] data = new double[matrix._elements.Length];
+            LogicControl.LogicProvider.ScalarArray(scalar, matrix._elements, data);
+            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
         }
         public static Matrix Multiply(double scalar, Matrix matrix)
         {
@@ -113,7 +92,7 @@ namespace Parsifal.Math.Algebra
                 {
                     for (int j = 0; j < right._colCount; j++)
                     {
-                        var temp = 0d;
+                        double temp = 0d;
                         for (int k = 0; k < left._colCount; k++)
                         {
                             temp += left.Get(i, k) * right.Get(k, j);
@@ -134,7 +113,7 @@ namespace Parsifal.Math.Algebra
                             row = left.GetRowArray(i);
                             for (int j = 0; j < right._colCount; j++)
                             {
-                                var col = right.GetColumnArray(j);
+                                double[] col = right.GetColumnArray(j);
                                 double temp = 0d;
                                 for (int k = 0; k < left._colCount; k++)
                                 {
@@ -154,10 +133,10 @@ namespace Parsifal.Math.Algebra
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(matrix, vector);
-            var data = new double[matrix._rowCount];
+            double[] data = new double[matrix._rowCount];
             for (int i = 0; i < matrix._rowCount; i++)
             {
-                var temp = 0d;
+                double temp = 0d;
                 for (int j = 0; j < matrix._colCount; j++)
                 {
                     temp += matrix.Get(i, j) * vector.Get(j);
@@ -173,10 +152,10 @@ namespace Parsifal.Math.Algebra
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(vector, matrix);
-            var data = new double[matrix._colCount];
+            double[] data = new double[matrix._colCount];
             for (int i = 0; i < matrix._colCount; i++)
             {
-                var temp = 0d;
+                double temp = 0d;
                 for (int j = 0; j < matrix._rowCount; j++)
                 {
                     temp += matrix.Get(j, i) * vector.Get(j);
@@ -216,7 +195,7 @@ namespace Parsifal.Math.Algebra
                 {
                     for (int j = 0; j < left._rowCount; j++)
                     {
-                        var temp = 0d;
+                        double temp = 0d;
                         for (int k = 0; k < left._colCount; k++)
                         {
                             temp += left.Get(j, k) * right.Get(i, k);
@@ -248,7 +227,7 @@ namespace Parsifal.Math.Algebra
                 {
                     for (int j = 0; j < left._colCount; j++)
                     {
-                        var temp = 0d;
+                        double temp = 0d;
                         for (int k = 0; k < left._rowCount; k++)
                         {
                             temp += left.Get(k, j) * right.Get(k, i);
@@ -265,6 +244,7 @@ namespace Parsifal.Math.Algebra
         }
         #endregion
 
+        #region instance
         public void Negate()
         {
             for (int i = 0; i < _elements.Length; i++)
@@ -338,6 +318,7 @@ namespace Parsifal.Math.Algebra
         {
             return Matrix.MultiplyTranspose(this, matrix);
         }
+        #endregion
 
         #region operator
         public static implicit operator Matrix(double[,] element)

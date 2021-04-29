@@ -34,7 +34,7 @@ namespace Parsifal.Math.Algebra
             CheckValidRowAndColumn(rows, columns);
             if (init is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(init));
-            var data = new double[rows * columns];
+            double[] data = new double[rows * columns];
             for (int i = 0, index = 0; i < rows; i++)
             {
                 for (int j = 0; j < columns; j++)
@@ -67,8 +67,8 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
             if (init is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(init));
-            var data = new double[rows * columns];
-            var min = rows <= columns ? rows : columns;
+            double[] data = new double[rows * columns];
+            int min = rows <= columns ? rows : columns;
             for (int i = 0, index = 0; i < min; i++, index += columns + 1)
             {
                 data[index] = init(i);
@@ -83,7 +83,7 @@ namespace Parsifal.Math.Algebra
         {
             if (order < 1)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(order));
-            var data = new double[order * order];
+            double[] data = new double[order * order];
             for (int i = 0; i < order; i++)
             {
                 data[i * (order + 1)] = 1d;
@@ -111,9 +111,9 @@ namespace Parsifal.Math.Algebra
         {
             if (maximum < minimum)
                 ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(maximum));
-            var range = maximum - minimum;
+            double range = maximum - minimum;
             var random = new Random(Guid.NewGuid().GetHashCode());
-            var data = new double[rows * columns];
+            double[] data = new double[rows * columns];
             for (int i = 0; i < data.Length; i++)
             {
                 data[i] = random.NextDouble() * range + minimum;
@@ -132,7 +132,7 @@ namespace Parsifal.Math.Algebra
             if (rowMajorData is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(rowMajorData));
             var enumerator = rowMajorData.GetEnumerator();
-            var data = new double[rows * columns];
+            double[] data = new double[rows * columns];
             for (int i = 0; enumerator.MoveNext() && i < data.Length; i++)
             {
                 data[i] = enumerator.Current;
@@ -168,7 +168,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowsData));
             int rows = rowsData.Length;
             int cols = rowsData[0].Length;
-            var data = new double[rows * cols];
+            double[] data = new double[rows * cols];
             for (int i = 0; i < rows; i++)
             {
                 if (rowsData[i].Length < cols)
@@ -197,7 +197,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowsData));
             int rows = rowsData.Length;
             int cols = rowsData[0].Dimension;
-            var data = new double[rows * cols];
+            double[] data = new double[rows * cols];
             for (int i = 0; i < rows; i++)
             {
                 if (rowsData[i].Dimension < cols)
@@ -218,7 +218,7 @@ namespace Parsifal.Math.Algebra
             if (columnMajorData is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(columnMajorData));
             var enumerator = columnMajorData.GetEnumerator();
-            var data = new double[rows * columns];
+            double[] data = new double[rows * columns];
             for (int i = 0; i < columns; i++)
             {
                 for (int j = 0; j < rows; j++)
@@ -260,7 +260,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnsData));
             int cols = columnsData.Length;
             int rows = columnsData[0].Length;
-            var data = new double[rows * cols];
+            double[] data = new double[rows * cols];
             for (int i = 0; i < cols; i++)
             {
                 if (columnsData[i].Length < rows)
@@ -299,7 +299,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnsData));
             int cols = columnsData.Length;
             int rows = columnsData[0].Dimension;
-            var data = new double[rows * cols];
+            double[] data = new double[rows * cols];
             for (int i = 0; i < cols; i++)
             {
                 if (columnsData[i].Dimension < rows)

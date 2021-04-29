@@ -1,4 +1,6 @@
-﻿namespace Parsifal.Math.Algebra
+﻿using System.Runtime.CompilerServices;
+
+namespace Parsifal.Math.Algebra
 {
     public partial class Matrix
     {
@@ -7,6 +9,7 @@
         /// </summary>
         /// <param name="index">索引位</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal double Get(int index)
         {
             return _elements[index];
@@ -17,6 +20,7 @@
         /// <param name="row">行索引</param>
         /// <param name="column">列索引</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal double Get(int row, int column)
         {
             return _elements[row * _colCount + column];
@@ -26,6 +30,7 @@
         /// </summary>
         /// <param name="index">索引位</param>
         /// <param name="value">值</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Set(int index, double value)
         {
             _elements[index] = value;
@@ -36,9 +41,32 @@
         /// <param name="row">行索引</param>
         /// <param name="column">列索引</param>
         /// <param name="value">值</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Set(int row, int column, double value)
         {
             _elements[row * _colCount + column] = value;
+        }
+        /// <summary>
+        /// 根据存储索引获取对应行列索引
+        /// </summary>
+        internal void GetRowColumnWithIndex(int index, out int row, out int column)
+        {
+            row = System.Math.DivRem(index, _colCount, out column);
+        }
+        /// <summary>
+        /// 转为列主序存储
+        /// </summary>
+        internal double[] ToColumnMajorOrder()
+        {
+            double[] result = new double[_elements.Length];
+            for (int i = 0; i < _colCount; i++)
+            {
+                for (int j = 0, offset = i * _colCount; j < _rowCount; j++)
+                {
+                    result[offset + j] = _elements[j * _colCount + i];
+                }
+            }
+            return result;
         }
         /// <summary>是否不应使用并行</summary>
         /// <remarks>用于指示在使用<b>原生算法</b>时是否使用并行运算</remarks>

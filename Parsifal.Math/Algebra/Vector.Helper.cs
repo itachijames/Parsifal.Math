@@ -1,4 +1,6 @@
-﻿namespace Parsifal.Math.Algebra
+﻿using System.Runtime.CompilerServices;
+
+namespace Parsifal.Math.Algebra
 {
     public partial class Vector
     {
@@ -7,6 +9,7 @@
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal double Get(int index)
         {
             return _elements[index];
@@ -16,6 +19,7 @@
         /// </summary>
         /// <param name="index"></param>
         /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Set(int index, double value)
         {
             _elements[index] = value;
