@@ -42,7 +42,7 @@ namespace Parsifal.Math.Algebra
                     data[index++] = init(i, j);
                 }
             }
-            return new Matrix(rows, columns, data, false);
+            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 创建指定阶的对角线矩阵
@@ -73,7 +73,7 @@ namespace Parsifal.Math.Algebra
             {
                 data[index] = init(i);
             }
-            return new Matrix(rows, columns, data, false);
+            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 创建指定阶单位矩阵
@@ -88,37 +88,7 @@ namespace Parsifal.Math.Algebra
             {
                 data[i * (order + 1)] = 1d;
             }
-            return new Matrix(order, order, data, false);
-        }
-        /// <summary>
-        /// 创建指定阶、元素值随机的矩阵
-        /// </summary>
-        /// <param name="order">矩阵阶数</param>
-        /// <param name="minimum">元素最小值</param>
-        /// <param name="maximum">元素最大值</param>
-        public static Matrix CreateRandom(int order, double minimum, double maximum)
-        {
-            return CreateRandom(order, order, minimum, maximum);
-        }
-        /// <summary>
-        /// 创建指定行列、元素值随机的矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
-        /// <param name="minimum">最小值</param>
-        /// <param name="maximum">最大值</param>
-        public static Matrix CreateRandom(int rows, int columns, double minimum, double maximum)
-        {
-            if (maximum < minimum)
-                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(maximum));
-            double range = maximum - minimum;
-            var random = new Random(Guid.NewGuid().GetHashCode());
-            double[] data = new double[rows * columns];
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] = random.NextDouble() * range + minimum;
-            }
-            return new Matrix(rows, columns, data, false);
+            return new Matrix(order, order, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 根据行主序数据创建矩阵
@@ -137,7 +107,7 @@ namespace Parsifal.Math.Algebra
             {
                 data[i] = enumerator.Current;
             }
-            return new Matrix(rows, columns, data, false);
+            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 根据行数据创建矩阵
@@ -175,7 +145,7 @@ namespace Parsifal.Math.Algebra
                     ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter, nameof(rowsData));
                 Buffer.BlockCopy(rowsData[i], 0, data, i * cols * DoubleSize, cols * DoubleSize);
             }
-            return new Matrix(rows, cols, data, false);
+            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 根据行数据创建矩阵
@@ -204,7 +174,7 @@ namespace Parsifal.Math.Algebra
                     ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter, nameof(rowsData));
                 Buffer.BlockCopy(rowsData[i].Storage, 0, data, i * cols * DoubleSize, cols * DoubleSize);
             }
-            return new Matrix(rows, cols, data, false);
+            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 根据列主序数据创建矩阵
@@ -229,7 +199,7 @@ namespace Parsifal.Math.Algebra
                     }
                 }
             }
-            return new Matrix(rows, columns, data, false);
+            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 根据列数据创建矩阵
@@ -277,7 +247,7 @@ namespace Parsifal.Math.Algebra
             //        data[i * cols + j] = columnsData[j][i];
             //    }
             //}
-            return new Matrix(rows, cols, data, false);
+            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 根据列数据创建矩阵
@@ -309,7 +279,7 @@ namespace Parsifal.Math.Algebra
                     data[j * cols + i] = columnsData[i].Get(j);
                 }
             }
-            return new Matrix(rows, cols, data, false);
+            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
         }
     }
 }

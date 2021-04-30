@@ -18,15 +18,17 @@ namespace Parsifal.Math.Algebra
         #region field
         private const int DoubleSize = sizeof(double);
         /// <summary>
-        /// 元素（按行主序存储）
+        /// 元素
         /// </summary>
         private readonly double[] _elements;
+        private readonly MatrixMajorOrder _storageOrder;
         private readonly int _rowCount;
         private readonly int _colCount;
         #endregion
 
         #region property
         internal double[] Storage { get => _elements; }
+        internal MatrixMajorOrder StorageOrder { get => _storageOrder; }
         /// <summary>
         /// 行数
         /// </summary>
@@ -83,6 +85,7 @@ namespace Parsifal.Math.Algebra
             CheckValidRowAndColumn(rows, columns);
             _rowCount = rows;
             _colCount = columns;
+            _storageOrder = MatrixMajorOrder.Row;
             _elements = new double[rows * columns];
         }
         /// <summary>
@@ -96,8 +99,10 @@ namespace Parsifal.Math.Algebra
             _rowCount = elements.GetLength(0);
             _colCount = elements.GetLength(1);
             int temp = _rowCount * _colCount;
+            _storageOrder = MatrixMajorOrder.Row;
             _elements = new double[temp];
-            Buffer.BlockCopy(elements, 0, _elements, 0, temp * DoubleSize);//二维数组默认按行存储，直接复制
+            //二维数组默认按行存储，直接复制
+            Buffer.BlockCopy(elements, 0, _elements, 0, temp * DoubleSize);
         }
         /// <summary>
         /// 根据指定项创建指定行列数的矩阵
@@ -105,23 +110,23 @@ namespace Parsifal.Math.Algebra
         /// <param name="rows">行数</param>
         /// <param name="columns">列数</param>
         /// <param name="elements">各项元素(按行顺序分布)</param>
-        public Matrix(int rows, int columns, double[] elements)
-            : this(rows, columns, elements, true) { }
-        internal Matrix(int rows, int columns, double[] elements, bool check)
+        /// <param name="elementOrder"></param>
+        public Matrix(int rows, int columns, double[] elements, MatrixMajorOrder elementOrder = MatrixMajorOrder.Row)
+            : this(rows, columns, elements, elementOrder, true) { }
+        internal Matrix(int rows, int columns, double[] elements, MatrixMajorOrder dataOrder, bool check)
         {
             if (check)
             {
                 CheckValidRowAndColumn(rows, columns);
                 if (elements is null)
                     ThrowHelper.ThrowArgumentNullException(nameof(elements));
-                int tempLength = rows * columns;
-                if (tempLength != elements.Length)
+                if (rows * columns != elements.Length)
                     ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(elements));
-
             }
-            _elements = elements;
             _rowCount = rows;
             _colCount = columns;
+            _storageOrder = dataOrder;
+            _elements = elements;
         }
         #endregion
 
@@ -158,7 +163,7 @@ namespace Parsifal.Math.Algebra
         {
             double[] date = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, date, 0, _elements.Length * DoubleSize);
-            return new Matrix(_rowCount, _colCount, date, false);
+            return new Matrix(_rowCount, _colCount, date, _storageOrder, false);
         }
         #endregion
 
@@ -182,7 +187,7 @@ namespace Parsifal.Math.Algebra
         #region public
         public override bool Equals(object obj) => obj is Matrix mat && Equals(mat);
         public override int GetHashCode() => HashCode.Combine(_rowCount, _colCount, _elements.GetHashCode());
-        public override string ToString() => ToString("G", CultureInfo.CurrentCulture);
+        public sealed override string ToString() => ToString("G", CultureInfo.CurrentCulture);
         /// <summary>
         /// 是否为对称矩阵
         /// </summary>
@@ -190,9 +195,9 @@ namespace Parsifal.Math.Algebra
         {
             if (_rowCount != _colCount)
                 return false;
-            for (var i = 0; i < _rowCount; i++)
+            for (int i = 0; i < _rowCount; i++)
             {
-                for (var j = i + 1; j < _colCount; j++)
+                for (int j = i + 1; j < _colCount; j++)
                 {
                     if (!Get(i, j).IsEqual(Get(j, i)))
                     {
@@ -436,7 +441,14 @@ namespace Parsifal.Math.Algebra
         {
             CheckRowIndex(rowIndex);
             double[] result = new double[_colCount];
-            Buffer.BlockCopy(_elements, rowIndex * _colCount * DoubleSize, result, 0, _colCount * DoubleSize);
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                Buffer.BlockCopy(_elements, rowIndex * _colCount * DoubleSize, result, 0, _colCount * DoubleSize);
+            }
+            else
+            {
+                //todo
+            }
             return result;
         }
         /// <summary>
@@ -468,9 +480,16 @@ namespace Parsifal.Math.Algebra
         {
             CheckColumnIndex(columnIndex);
             double[] result = new double[_rowCount];
-            for (int i = 0; i < _rowCount; i++)
+            if (_storageOrder == MatrixMajorOrder.Row)
             {
-                result[i] = Get(i, columnIndex);
+                for (int i = 0; i < _rowCount; i++)
+                {
+                    result[i] = Get(i, columnIndex);
+                }
+            }
+            else
+            {
+                //todo
             }
             return result;
         }
@@ -500,13 +519,20 @@ namespace Parsifal.Math.Algebra
             if (columnIndex < 0 || columnIndex + cCount > _colCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnIndex));
             double[] data = new double[rCount * cCount];
-            for (int i = 0; i < rCount; i++)
+            if (_storageOrder == MatrixMajorOrder.Row)
             {
-                Buffer.BlockCopy(_elements, ((rowIndex + i) * _colCount + columnIndex) * DoubleSize,
-                    data, i * cCount * DoubleSize,
-                    cCount * DoubleSize);
+                for (int i = 0; i < rCount; i++)
+                {
+                    Buffer.BlockCopy(_elements, ((rowIndex + i) * _colCount + columnIndex) * DoubleSize,
+                        data, i * cCount * DoubleSize,
+                        cCount * DoubleSize);
+                }
             }
-            return new Matrix(rCount, cCount, data, false);
+            else
+            {
+                //todo
+            }
+            return new Matrix(rCount, cCount, data, _storageOrder, false);
         }
         /// <summary>
         /// 设置行
@@ -520,7 +546,14 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentNullException(nameof(row));
             if (row.Length != _colCount)
                 ThrowHelper.ThrowDimensionDontMatchException(this, row);
-            Buffer.BlockCopy(row, 0, _elements, rowIndex * _colCount * DoubleSize, _colCount * DoubleSize);
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                Buffer.BlockCopy(row, 0, _elements, rowIndex * _colCount * DoubleSize, _colCount * DoubleSize);
+            }
+            else
+            {
+                //todo
+            }
         }
         /// <summary>
         /// 设置行
@@ -529,15 +562,7 @@ namespace Parsifal.Math.Algebra
         /// <param name="row">行向量</param>
         public void SetRow(int rowIndex, Vector row)
         {
-            CheckRowIndex(rowIndex);
-            if (row is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(row));
-            if (row.Dimension != _colCount)
-                ThrowHelper.ThrowDimensionDontMatchException(this, row);
-            for (int i = 0; i < _colCount; i++)
-            {
-                Set(rowIndex, i, row.Get(i));
-            }
+            SetRow(rowIndex, row.Storage);
         }
         /// <summary>
         /// 设置列
@@ -551,9 +576,16 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentNullException(nameof(column));
             if (column.Length != _rowCount)
                 ThrowHelper.ThrowDimensionDontMatchException(this, column);
-            for (int i = 0; i < _rowCount; i++)
+            if (_storageOrder == MatrixMajorOrder.Row)
             {
-                Set(i, columnIndex, column[i]);
+                for (int i = 0; i < _rowCount; i++)
+                {
+                    Set(i, columnIndex, column[i]);
+                }
+            }
+            else
+            {
+                //todo
             }
         }
         /// <summary>
@@ -563,15 +595,7 @@ namespace Parsifal.Math.Algebra
         /// <param name="column">列向量</param>
         public void SetColumn(int columnIndex, Vector column)
         {
-            CheckColumnIndex(columnIndex);
-            if (column is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(column));
-            if (column.Dimension != _rowCount)
-                ThrowHelper.ThrowDimensionDontMatchException(this, column);
-            for (int i = 0; i < _rowCount; i++)
-            {
-                Set(i, columnIndex, column.Get(i));
-            }
+            SetColumn(columnIndex, column.Storage);
         }
         /// <summary>
         /// 设置子矩阵
@@ -598,9 +622,16 @@ namespace Parsifal.Math.Algebra
             CheckSameColumn(this, matrix);
             int rows = _rowCount + matrix._rowCount;
             double[] data = new double[rows * _colCount];
-            Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
-            Buffer.BlockCopy(matrix._elements, 0, data, _elements.Length * DoubleSize, matrix._elements.Length * DoubleSize);
-            return new Matrix(rows, _colCount, data, false);
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
+                Buffer.BlockCopy(matrix._elements, 0, data, _elements.Length * DoubleSize, matrix._elements.Length * DoubleSize);
+            }
+            else
+            {
+                //todo
+            }
+            return new Matrix(rows, _colCount, data, _storageOrder, false);
         }
         /// <summary>
         /// 添加到右方
@@ -611,12 +642,19 @@ namespace Parsifal.Math.Algebra
             CheckSameRow(this, matrix);
             int cols = _colCount + matrix._colCount;
             double[] result = new double[_rowCount * cols];
-            for (int i = 0; i < _rowCount; i++)
+            if (_storageOrder == MatrixMajorOrder.Row)
             {
-                Buffer.BlockCopy(_elements, i * _colCount * DoubleSize, result, i * cols * DoubleSize, _colCount * DoubleSize);
-                Buffer.BlockCopy(matrix._elements, i * matrix._colCount * DoubleSize, result, i * _colCount * DoubleSize, matrix._colCount * DoubleSize);
+                for (int i = 0; i < _rowCount; i++)
+                {
+                    Buffer.BlockCopy(_elements, i * _colCount * DoubleSize, result, i * cols * DoubleSize, _colCount * DoubleSize);
+                    Buffer.BlockCopy(matrix._elements, i * matrix._colCount * DoubleSize, result, i * _colCount * DoubleSize, matrix._colCount * DoubleSize);
+                }
             }
-            return new Matrix(_rowCount, cols, result, false);
+            else
+            {
+                //todo
+            }
+            return new Matrix(_rowCount, cols, result, _storageOrder, false);
         }
         /// <summary>
         /// 清空矩阵
@@ -632,7 +670,14 @@ namespace Parsifal.Math.Algebra
         public void ClearRow(int rowIndex)
         {
             CheckRowIndex(rowIndex);
-            Array.Clear(_elements, rowIndex * _colCount, _colCount);
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                Array.Clear(_elements, rowIndex * _colCount, _colCount);
+            }
+            else
+            {
+                //todo
+            }
         }
         /// <summary>
         /// 清空列
@@ -641,9 +686,16 @@ namespace Parsifal.Math.Algebra
         public void ClearColumn(int columnIndex)
         {
             CheckColumnIndex(columnIndex);
-            for (int i = 0; i < _rowCount; i++)
+            if (_storageOrder == MatrixMajorOrder.Row)
             {
-                Set(i, columnIndex, 0d);
+                for (int i = 0; i < _rowCount; i++)
+                {
+                    Set(i, columnIndex, 0d);
+                }
+            }
+            else
+            {
+                //todo
             }
         }
         /// <summary>
@@ -661,9 +713,16 @@ namespace Parsifal.Math.Algebra
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
                 if (columnIndex < 0 || columnIndex + cCount > _colCount)
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnIndex));
-                for (int i = rowIndex; i < rowIndex + rCount; i++)
+                if (_storageOrder == MatrixMajorOrder.Row)
                 {
-                    Array.Clear(_elements, i * _colCount + columnIndex, cCount);
+                    for (int i = rowIndex; i < rowIndex + rCount; i++)
+                    {
+                        Array.Clear(_elements, i * _colCount + columnIndex, cCount);
+                    }
+                }
+                else
+                {
+                    //todo
                 }
             }
         }
@@ -697,10 +756,36 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 转为一维数组
         /// </summary>
-        public double[] ToArray()
+        public double[] ToRowMajorArray()
         {
             double[] result = new double[_elements.Length];
-            Buffer.BlockCopy(_elements, 0, result, 0, result.Length * DoubleSize);
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                Buffer.BlockCopy(_elements, 0, result, 0, _elements.Length * DoubleSize);
+            }
+            else
+            {
+                //todo
+            }
+            return result;
+        }
+        public double[] ToColumnMajorArray()
+        {
+            double[] result = new double[_elements.Length];
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                for (int i = 0; i < _colCount; i++)
+                {
+                    for (int j = 0, offset = i * _colCount; j < _rowCount; j++)
+                    {
+                        result[offset + j] = _elements[j * _colCount + i];
+                    }
+                }
+            }
+            else
+            {
+                Buffer.BlockCopy(_elements, 0, result, 0, _elements.Length * DoubleSize);
+            }
             return result;
         }
         /// <summary>
@@ -709,7 +794,14 @@ namespace Parsifal.Math.Algebra
         public double[,] To2DArray()
         {
             double[,] result = new double[_rowCount, _colCount];
-            Buffer.BlockCopy(_elements, 0, result, 0, result.Length * DoubleSize);
+            if (_storageOrder == MatrixMajorOrder.Row)
+            {
+                Buffer.BlockCopy(_elements, 0, result, 0, result.Length * DoubleSize);
+            }
+            else
+            {
+                //todo
+            }
             return result;
         }
         /// <summary>
@@ -718,10 +810,17 @@ namespace Parsifal.Math.Algebra
         public double[][] ToJaggedArray()
         {
             double[][] result = new double[_rowCount][];
-            for (int i = 0; i < _rowCount; i++)
+            if (_storageOrder == MatrixMajorOrder.Row)
             {
-                result[i] = new double[_colCount];
-                Buffer.BlockCopy(_elements, i * _colCount * DoubleSize, result[i], 0, _colCount * DoubleSize);
+                for (int i = 0; i < _rowCount; i++)
+                {
+                    result[i] = new double[_colCount];
+                    Buffer.BlockCopy(_elements, i * _colCount * DoubleSize, result[i], 0, _colCount * DoubleSize);
+                }
+            }
+            else
+            {
+                //todo
             }
             return result;
         }

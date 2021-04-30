@@ -23,7 +23,10 @@ namespace Parsifal.Math.Algebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal double Get(int row, int column)
         {
-            return _elements[row * _colCount + column];
+            if (_storageOrder == MatrixMajorOrder.Row)
+                return _elements[row * _colCount + column];
+            else
+                return _elements[column * _rowCount + row];
         }
         /// <summary>
         /// 设定值(不进行边界校验)
@@ -44,29 +47,20 @@ namespace Parsifal.Math.Algebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Set(int row, int column, double value)
         {
-            _elements[row * _colCount + column] = value;
+            if (_storageOrder == MatrixMajorOrder.Row)
+                _elements[row * _colCount + column] = value;
+            else
+                _elements[column * _rowCount + row] = value;
         }
         /// <summary>
         /// 根据存储索引获取对应行列索引
         /// </summary>
         internal void GetRowColumnWithIndex(int index, out int row, out int column)
         {
-            row = System.Math.DivRem(index, _colCount, out column);
-        }
-        /// <summary>
-        /// 转为列主序存储
-        /// </summary>
-        internal double[] ToColumnMajorOrder()
-        {
-            double[] result = new double[_elements.Length];
-            for (int i = 0; i < _colCount; i++)
-            {
-                for (int j = 0, offset = i * _colCount; j < _rowCount; j++)
-                {
-                    result[offset + j] = _elements[j * _colCount + i];
-                }
-            }
-            return result;
+            if (_storageOrder == MatrixMajorOrder.Row)
+                row = System.Math.DivRem(index, _colCount, out column);
+            else
+                column = System.Math.DivRem(index, _rowCount, out row);
         }
         /// <summary>是否不应使用并行</summary>
         /// <remarks>用于指示在使用<b>原生算法</b>时是否使用并行运算</remarks>
@@ -94,7 +88,7 @@ namespace Parsifal.Math.Algebra
         }
         private static void CheckSquareMatrix(Matrix matrix)
         {
-            if (!matrix.IsSquare)
+            if (matrix._rowCount != matrix._colCount)
                 ThrowHelper.ThrowNotSupportedException(ErrorReason.OnlyForSquareMatrix);
         }
         private static void CheckSameDimension(Matrix left, Matrix right)

@@ -12,7 +12,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] data = new double[matrix._elements.Length];
             LogicControl.LogicProvider.ScalarArray(-1, matrix._elements, data);
-            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
+            return new Matrix(matrix._rowCount, matrix._colCount, data, matrix._storageOrder, false);
         }
         public static Matrix Add(Matrix matrix, double scalar)
         {
@@ -23,7 +23,7 @@ namespace Parsifal.Math.Algebra
             {
                 data[i] = matrix.Get(i) + scalar;
             }
-            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
+            return new Matrix(matrix._rowCount, matrix._colCount, data, matrix._storageOrder, false);
         }
         public static Matrix Add(double scalar, Matrix matrix)
         {
@@ -38,7 +38,7 @@ namespace Parsifal.Math.Algebra
             CheckSameDimension(left, right);
             double[] data = new double[left._elements.Length];
             LogicControl.LogicProvider.AddArray(left._elements, right._elements, data);
-            return new Matrix(left._rowCount, left._colCount, data, false);
+            return new Matrix(left._rowCount, left._colCount, data, left._storageOrder, false);//todo
         }
         public static Matrix Subtract(Matrix matrix, double scalar)
         {
@@ -53,7 +53,7 @@ namespace Parsifal.Math.Algebra
             {
                 data[i] = scalar - matrix.Get(i);
             }
-            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
+            return new Matrix(matrix._rowCount, matrix._colCount, data, matrix._storageOrder, false);
         }
         public static Matrix Subtract(Matrix left, Matrix right)
         {
@@ -64,7 +64,7 @@ namespace Parsifal.Math.Algebra
             CheckSameDimension(left, right);
             double[] data = new double[left._elements.Length];
             LogicControl.LogicProvider.SubtractArray(left._elements, right._elements, data);
-            return new Matrix(left._rowCount, left._colCount, data, false);
+            return new Matrix(left._rowCount, left._colCount, data, left._storageOrder, false);//todo
         }
         public static Matrix Multiply(Matrix matrix, double scalar)
         {
@@ -72,7 +72,7 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] data = new double[matrix._elements.Length];
             LogicControl.LogicProvider.ScalarArray(scalar, matrix._elements, data);
-            return new Matrix(matrix._rowCount, matrix._colCount, data, false);
+            return new Matrix(matrix._rowCount, matrix._colCount, data, matrix._storageOrder, false);
         }
         public static Matrix Multiply(double scalar, Matrix matrix)
         {

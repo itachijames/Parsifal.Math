@@ -8,7 +8,7 @@ namespace Parsifal.Math
     /// C#原生算法
     /// </summary>
     /// <remarks>实现均不校验参数异常,如未空、输入输出长度不一致、无意义数；但会校验一些逻辑值，如乘法维度匹配等</remarks>
-    internal class NativeProvider : ILogicProvider//设为internal阻止外部直接调用
+    internal sealed class NativeProvider : ILogicProvider//设为internal阻止外部直接调用
     {
         public LogicProviderType Provider => LogicProviderType.Native;
 

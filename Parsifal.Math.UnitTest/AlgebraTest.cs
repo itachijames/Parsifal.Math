@@ -22,7 +22,7 @@ namespace Parsifal.Math.UnitTest
 
             var element2 = new double[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 }, { 10, 11, 12 } };
             var mat2 = new Matrix(element2);
-            var tempArr = mat2.ToArray();
+            var tempArr = mat2.ToRowMajorArray();
             var strF = mat2.ToString();
             var matT = mat2.Transpose();
             var strMatT = matT.ToString();

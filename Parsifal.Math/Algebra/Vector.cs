@@ -246,7 +246,7 @@ namespace Parsifal.Math.Algebra
         {
             double[] items = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
-            return new Matrix(1, _elements.Length, items, false);
+            return new Matrix(1, _elements.Length, items, MatrixMajorOrder.Row, false);
         }
         /// <summary>
         /// 转为列矩阵
@@ -255,7 +255,7 @@ namespace Parsifal.Math.Algebra
         {
             double[] items = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
-            return new Matrix(_elements.Length, 1, items, false);
+            return new Matrix(_elements.Length, 1, items, MatrixMajorOrder.Column, false);
         }
         /// <summary>
         /// 转为一维数组
