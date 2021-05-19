@@ -47,7 +47,7 @@ namespace Parsifal.Math
                         //LogicProvider = new MklProvider();
                         break;
                     case LogicProviderType.CUDA:
-                        LogicProvider = new CudaProvider();
+                        //LogicProvider = new CudaProvider();
                         break;
                 }
                 //todo

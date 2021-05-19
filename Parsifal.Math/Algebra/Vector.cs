@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 
 namespace Parsifal.Math.Algebra
@@ -12,7 +10,7 @@ namespace Parsifal.Math.Algebra
     /// 向量
     /// </summary>
     [Serializable]
-    [DebuggerDisplay("Vector ({Dimension})")]
+    [System.Diagnostics.DebuggerDisplay("Vector ({Dimension})")]
     public sealed partial class Vector : IEnumerable<double>, IEquatable<Vector>, ICloneable, IFormattable
     {
         #region field
@@ -26,12 +24,12 @@ namespace Parsifal.Math.Algebra
         {
             get
             {
-                CheckRange(index);
+                CheckIndexRange(index);
                 return Get(index);
             }
             set
             {
-                CheckRange(index);
+                CheckIndexRange(index);
                 Set(index, value);
             }
         }
@@ -82,10 +80,7 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region IEquatable
-        public bool Equals(Vector other)
-        {
-            return this == other;
-        }
+        public bool Equals(Vector other) => this == other;
         #endregion
 
         #region ICloneable
@@ -97,7 +92,7 @@ namespace Parsifal.Math.Algebra
         {
             double[] data = new double[_elements.Length];
             Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
-            return new Vector(_elements);
+            return new Vector(data);
         }
 
         #endregion
@@ -112,7 +107,7 @@ namespace Parsifal.Math.Algebra
         #region public
         public override bool Equals(object obj) => obj is Vector vector && Equals(vector);
         public override int GetHashCode() => _elements.GetHashCode();
-        public override string ToString() => ToString("G", CultureInfo.CurrentCulture);
+        public override string ToString() => ToString("G", System.Globalization.CultureInfo.CurrentCulture);
         #endregion
 
         #region Norm
@@ -197,7 +192,7 @@ namespace Parsifal.Math.Algebra
         /// <param name="subVector">子向量</param>
         public void SetSubVector(int index, Vector subVector)
         {
-            if (subVector is null)
+            if (subVector is null || subVector._elements.Length > _elements.Length)
                 ThrowHelper.ThrowArgumentNullException(nameof(subVector));
             if (index < 0 || index + subVector._elements.Length > _elements.Length)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(index));
@@ -244,18 +239,14 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         public Matrix ToRowMatrix()
         {
-            double[] items = new double[_elements.Length];
-            Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
-            return new Matrix(1, _elements.Length, items, MatrixMajorOrder.Row, false);
+            return Matrix.CreateByColumnMajorData(1, _elements.Length, _elements);
         }
         /// <summary>
         /// 转为列矩阵
         /// </summary>
         public Matrix ToColumnMatrix()
         {
-            double[] items = new double[_elements.Length];
-            Buffer.BlockCopy(_elements, 0, items, 0, items.Length * DoubleSize);
-            return new Matrix(_elements.Length, 1, items, MatrixMajorOrder.Column, false);
+            return Matrix.CreateByColumnMajorData(_elements.Length, 1, _elements);
         }
         /// <summary>
         /// 转为一维数组

@@ -4,28 +4,38 @@
     {
         LogicProviderType Provider { get; }
 
-        #region LinearAlgebra
+        #region Versatile
         /// <summary>
-        /// 数组缩放 <paramref name="result"/> = <paramref name="scalar"/> * <paramref name="source"/>
+        /// 数组数乘 <paramref name="result"/> = <paramref name="scalar"/> * <paramref name="x"/>
         /// </summary>
-        /// <param name="scalar">缩放比例</param>
-        /// <param name="source">数组</param>
+        /// <param name="scalar">乘数</param>
+        /// <param name="x">数组</param>
         /// <param name="result">结果</param>
-        void ScalarArray(double scalar, double[] source, double[] result);
+        void ArrayMultiply(double scalar, double[] x, double[] result);
+        /// <summary>
+        /// 数组加法 <paramref name="result"/> = <paramref name="scalar"/> + <paramref name="x"/>
+        /// </summary>
+        /// <param name="scalar">加数</param>
+        /// <param name="x">数组</param>
+        /// <param name="result">结果</param>
+        void ArrayAdd(double scalar, double[] x, double[] result);
         /// <summary>
         /// 数组相加 <paramref name="result"/> = <paramref name="x"/> + <paramref name="y"/>
         /// </summary>
         /// <param name="x">x</param>
         /// <param name="y">y</param>
         /// <param name="result">结果</param>
-        void AddArray(double[] x, double[] y, double[] result);
+        void ArrayAdd(double[] x, double[] y, double[] result);
         /// <summary>
         /// 数组相减 <paramref name="result"/> = <paramref name="x"/> - <paramref name="y"/>
         /// </summary>
         /// <param name="x">x</param>
         /// <param name="y">y</param>
         /// <param name="result">结果</param>
-        void SubtractArray(double[] x, double[] y, double[] result);
+        void ArraySubtract(double[] x, double[] y, double[] result);
+        #endregion
+
+        #region LinearAlgebra
         /// <summary>
         /// 向量点乘 
         /// </summary>

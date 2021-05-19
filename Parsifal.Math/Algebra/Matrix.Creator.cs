@@ -7,75 +7,6 @@ namespace Parsifal.Math.Algebra
     public partial class Matrix
     {
         /// <summary>
-        /// 创建指定阶的空矩阵
-        /// </summary>
-        /// <param name="order">矩阵阶数</param>
-        public static Matrix Create(int order)
-        {
-            return Create(order, order);
-        }
-        /// <summary>
-        /// 创建指定行列的空矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
-        public static Matrix Create(int rows, int columns)
-        {
-            return new Matrix(rows, columns);
-        }
-        /// <summary>
-        /// 创建指定元素的矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
-        /// <param name="init">各元素初始化方法</param>
-        public static Matrix Create(int rows, int columns, Func<int, int, double> init)
-        {
-            CheckValidRowAndColumn(rows, columns);
-            if (init is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(init));
-            double[] data = new double[rows * columns];
-            for (int i = 0, index = 0; i < rows; i++)
-            {
-                for (int j = 0; j < columns; j++)
-                {
-                    data[index++] = init(i, j);
-                }
-            }
-            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
-        }
-        /// <summary>
-        /// 创建指定阶的对角线矩阵
-        /// </summary>
-        /// <param name="order">矩阵阶数</param>
-        /// <param name="init">对角线元素初始化方法</param>
-        public static Matrix CreateDiagonal(int order, Func<int, double> init)
-        {
-            return CreateDiagonal(order, order, init);
-        }
-        /// <summary>
-        /// 创建指定行列的对角线矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
-        /// <param name="init">对角线元素初始化方法</param>
-        public static Matrix CreateDiagonal(int rows, int columns, Func<int, double> init)
-        {
-            if (rows < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-            if (columns < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
-            if (init is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(init));
-            double[] data = new double[rows * columns];
-            int min = rows <= columns ? rows : columns;
-            for (int i = 0, index = 0; i < min; i++, index += columns + 1)
-            {
-                data[index] = init(i);
-            }
-            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
-        }
-        /// <summary>
         /// 创建指定阶单位矩阵
         /// </summary>
         /// <param name="order">矩阵阶数</param>
@@ -88,7 +19,76 @@ namespace Parsifal.Math.Algebra
             {
                 data[i * (order + 1)] = 1d;
             }
-            return new Matrix(order, order, data, MatrixMajorOrder.Row, false);
+            return new Matrix(order, order, data);
+        }
+        /// <summary>
+        /// 创建指定阶的对角线矩阵
+        /// </summary>
+        /// <param name="order">矩阵阶数</param>
+        /// <param name="initFunc">对角线元素初始化方法</param>
+        public static Matrix CreateDiagonal(int order, Func<int, double> initFunc)
+        {
+            return CreateDiagonal(order, order, initFunc);
+        }
+        /// <summary>
+        /// 创建指定行列的对角线矩阵
+        /// </summary>
+        /// <param name="rows">行数</param>
+        /// <param name="columns">列数</param>
+        /// <param name="initFunc">对角线元素初始化方法</param>
+        public static Matrix CreateDiagonal(int rows, int columns, Func<int, double> initFunc)
+        {
+            CheckValidRowAndColumn(rows, columns);
+            if (initFunc is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(initFunc));
+            double[] data = new double[rows * columns];
+            int min = rows <= columns ? rows : columns;
+            for (int i = 0, index = 0; i < min; i++, index += (rows + 1))
+            {
+                data[index] = initFunc(i);
+            }
+            return new Matrix(rows, columns, data);
+        }
+        /// <summary>
+        /// 创建指定元素的矩阵
+        /// </summary>
+        /// <param name="rows">行数</param>
+        /// <param name="columns">列数</param>
+        /// <param name="initFunc">各元素初始化方法</param>
+        public static Matrix CreateWithSpecify(int rows, int columns, Func<int, int, double> initFunc)
+        {
+            CheckValidRowAndColumn(rows, columns);
+            if (initFunc is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(initFunc));
+            double[] data = new double[rows * columns];
+            for (int i = 0, offset = 0; i < columns; i++)
+            {
+                for (int j = 0; j < rows; j++)
+                {
+                    data[offset++] = initFunc(j, i);
+                }
+            }
+            return new Matrix(rows, columns, data);
+        }
+        /// <summary>
+        /// 根据二维数组创建对应矩阵
+        /// </summary>
+        /// <param name="array">二维数组</param>
+        public static Matrix CreateByArray(double[,] array)
+        {
+            if (array is null)
+                ThrowHelper.ThrowArgumentNullException(nameof(array));
+            int rows = array.GetLength(0);
+            int cols = array.GetLength(1);
+            double[] data = new double[rows * cols];
+            for (int i = 0, index = 0; i < cols; i++)
+            {
+                for (int j = 0; j < rows; j++)
+                {
+                    data[index++] = array[j, i];
+                }
+            }
+            return new Matrix(rows, cols, data);
         }
         /// <summary>
         /// 根据行主序数据创建矩阵
@@ -101,13 +101,17 @@ namespace Parsifal.Math.Algebra
             CheckValidRowAndColumn(rows, columns);
             if (rowMajorData is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(rowMajorData));
-            var enumerator = rowMajorData.GetEnumerator();
             double[] data = new double[rows * columns];
-            for (int i = 0; enumerator.MoveNext() && i < data.Length; i++)
+            double[] arrayData = rowMajorData.ToArray();
+            for (int i = 0; i < rows; i++)
             {
-                data[i] = enumerator.Current;
+                for (int j = 0; j < columns; j++)
+                {
+                    int sIndex = i * columns + j;
+                    data[j * rows + i] = sIndex < arrayData.Length ? arrayData[sIndex] : 0;
+                }
             }
-            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
+            return new Matrix(rows, columns, data);
         }
         /// <summary>
         /// 根据行数据创建矩阵
@@ -141,11 +145,13 @@ namespace Parsifal.Math.Algebra
             double[] data = new double[rows * cols];
             for (int i = 0; i < rows; i++)
             {
-                if (rowsData[i].Length < cols)
-                    ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter, nameof(rowsData));
-                Buffer.BlockCopy(rowsData[i], 0, data, i * cols * DoubleSize, cols * DoubleSize);
+                int min = System.Math.Min(cols, rowsData[i].Length);
+                for (int j = 0; j < min; j++)
+                {
+                    data[j * rows + i] = rowsData[i][j];
+                }
             }
-            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
+            return new Matrix(rows, cols, data);
         }
         /// <summary>
         /// 根据行数据创建矩阵
@@ -170,11 +176,13 @@ namespace Parsifal.Math.Algebra
             double[] data = new double[rows * cols];
             for (int i = 0; i < rows; i++)
             {
-                if (rowsData[i].Dimension < cols)
-                    ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter, nameof(rowsData));
-                Buffer.BlockCopy(rowsData[i].Storage, 0, data, i * cols * DoubleSize, cols * DoubleSize);
+                int min = System.Math.Min(cols, rowsData[i].Dimension);
+                for (int j = 0; j < min; j++)
+                {
+                    data[j * rows + i] = rowsData[i].Get(j);
+                }
             }
-            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
+            return new Matrix(rows, cols, data);
         }
         /// <summary>
         /// 根据列主序数据创建矩阵
@@ -187,19 +195,10 @@ namespace Parsifal.Math.Algebra
             CheckValidRowAndColumn(rows, columns);
             if (columnMajorData is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(columnMajorData));
-            var enumerator = columnMajorData.GetEnumerator();
             double[] data = new double[rows * columns];
-            for (int i = 0; i < columns; i++)
-            {
-                for (int j = 0; j < rows; j++)
-                {
-                    if (enumerator.MoveNext())
-                    {
-                        data[j * columns + i] = enumerator.Current;
-                    }
-                }
-            }
-            return new Matrix(rows, columns, data, MatrixMajorOrder.Row, false);
+            double[] arrayData = columnMajorData.ToArray();
+            Buffer.BlockCopy(arrayData, 0, data, 0, System.Math.Min(data.Length, arrayData.Length) * DoubleSize);
+            return new Matrix(rows, columns, data);
         }
         /// <summary>
         /// 根据列数据创建矩阵
@@ -233,21 +232,11 @@ namespace Parsifal.Math.Algebra
             double[] data = new double[rows * cols];
             for (int i = 0; i < cols; i++)
             {
-                if (columnsData[i].Length < rows)
-                    ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter, nameof(columnsData));
-                for (int j = 0; j < rows; j++)
-                {
-                    data[j * cols + i] = columnsData[i][j];
-                }
+                Buffer.BlockCopy(columnsData[i], 0,
+                    data, i * rows * DoubleSize,
+                    System.Math.Min(rows, columnsData[i].Length) * DoubleSize);
             }
-            //for (int i = 0; i < rows; i++)
-            //{
-            //    for (int j = 0; j < cols; j++)
-            //    {
-            //        data[i * cols + j] = columnsData[j][i];
-            //    }
-            //}
-            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
+            return new Matrix(rows, cols, data);
         }
         /// <summary>
         /// 根据列数据创建矩阵
@@ -272,14 +261,11 @@ namespace Parsifal.Math.Algebra
             double[] data = new double[rows * cols];
             for (int i = 0; i < cols; i++)
             {
-                if (columnsData[i].Dimension < rows)
-                    ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter, nameof(columnsData));
-                for (int j = 0; j < rows; j++)
-                {
-                    data[j * cols + i] = columnsData[i].Get(j);
-                }
+                Buffer.BlockCopy(columnsData[i].Storage, 0,
+                    data, i * rows * DoubleSize,
+                    System.Math.Min(rows, columnsData[i].Dimension) * DoubleSize);
             }
-            return new Matrix(rows, cols, data, MatrixMajorOrder.Row, false);
+            return new Matrix(rows, cols, data);
         }
     }
 }

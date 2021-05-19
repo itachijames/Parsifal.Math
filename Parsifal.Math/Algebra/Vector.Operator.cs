@@ -7,8 +7,8 @@
         {
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            var data = new double[vector._elements.Length];
-            LogicControl.LogicProvider.ScalarArray(-1, vector._elements, data);
+            double[] data = new double[vector._elements.Length];
+            LogicControl.LogicProvider.ArrayMultiply(-1, vector._elements, data);
             return data;
         }
         public static Vector Add(Vector left, Vector right)
@@ -18,8 +18,8 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            var data = new double[left._elements.Length];
-            LogicControl.LogicProvider.AddArray(left._elements, right._elements, data);
+            double[] data = new double[left._elements.Length];
+            LogicControl.LogicProvider.ArrayAdd(left._elements, right._elements, data);
             return data;
         }
         public static Vector Subtract(Vector left, Vector right)
@@ -29,16 +29,16 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            var data = new double[left._elements.Length];
-            LogicControl.LogicProvider.SubtractArray(left._elements, right._elements, data);
+            double[] data = new double[left._elements.Length];
+            LogicControl.LogicProvider.ArraySubtract(left._elements, right._elements, data);
             return data;
         }
         public static Vector Multiply(Vector vector, double scalar)
         {
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            var data = new double[vector._elements.Length];
-            LogicControl.LogicProvider.ScalarArray(scalar, vector._elements, data);
+            double[] data = new double[vector._elements.Length];
+            LogicControl.LogicProvider.ArrayMultiply(scalar, vector._elements, data);
             return data;
         }
         public static Vector Multiply(double scalar, Vector vector)
@@ -63,43 +63,25 @@
         #endregion
 
         #region instance
-        public void Negate()
+        public Vector Negate()
         {
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                Set(i, -1 * Get(i));
-            }
+            return Vector.Negate(this);
         }
-        public void Add(Vector vector)
+        public Vector Add(Vector vector)
         {
-            if (vector is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            CheckSameDimension(this, vector);
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                Set(i, Get(i) + vector.Get(i));
-            }
+            return Vector.Add(this, vector);
         }
-        public void Subtract(Vector vector)
+        public Vector Subtract(Vector vector)
         {
-            if (vector is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            CheckSameDimension(this, vector);
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                Set(i, Get(i) - vector.Get(i));
-            }
+            return Vector.Subtract(this, vector);
         }
-        public void Multiply(double scalar)
+        public Vector Multiply(double scalar)
         {
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                Set(i, scalar * Get(i));
-            }
+            return Vector.Multiply(this, scalar);
         }
-        public void Divide(double scalar)
+        public Vector Divide(double scalar)
         {
-            Multiply(1.0 / scalar);
+            return Vector.Divide(this, scalar);
         }
         /// <summary>
         /// 向量点积/内积
@@ -114,7 +96,7 @@
 
         #region operator
         public static implicit operator Vector(double[] element)
-        {
+        {//隐式转换
             return new Vector(element);
         }
         public static bool operator ==(Vector left, Vector right)

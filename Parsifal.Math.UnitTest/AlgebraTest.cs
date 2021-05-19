@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Parsifal.Math.Algebra;
 using Xunit;
@@ -12,7 +11,7 @@ namespace Parsifal.Math.UnitTest
         public void MatrixBaseTest()
         {
             var element1 = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            var mat1 = new Matrix(3, 3, element1);
+            var mat1 = Matrix.CreateByColumnMajorData(3, 3, element1);
             var ss = mat1.ToString();
             Assert.Equal(mat1.Count, element1.Length);
             var lowT1 = mat1.LowerTriangle();
@@ -21,9 +20,12 @@ namespace Parsifal.Math.UnitTest
             var us1 = upT1.ToString();
 
             var element2 = new double[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 }, { 10, 11, 12 } };
-            var mat2 = new Matrix(element2);
-            var tempArr = mat2.ToRowMajorArray();
+            var mat2 = Matrix.CreateByArray(element2);
             var strF = mat2.ToString();
+            var lowT2 = mat2.LowerTriangle();
+            var ls2 = lowT2.ToString();
+            var upT2 = mat2.UpperTriangle();
+            var us2 = upT2.ToString();
             var matT = mat2.Transpose();
             var strMatT = matT.ToString();
 
@@ -53,7 +55,7 @@ namespace Parsifal.Math.UnitTest
             var data3 = new List<Vector>
             {
                 Enumerable.Range(5,5).Select(i=>(double)i).ToArray(),
-                Enumerable.Range(15,6).Select(i=>(double)i).ToArray(),//必须大于等于首行
+                Enumerable.Range(15,6).Select(i=>(double)i).ToArray(),
                 Enumerable.Range(25,7).Select(i=>(double)i).ToArray()
             };
             var mat5 = Matrix.CreateByColumns(data3);
@@ -61,10 +63,7 @@ namespace Parsifal.Math.UnitTest
             Assert.True(mat5.Transpose().Equals(mat6));
 
             data3[1] = new Vector(Enumerable.Range(15, 4).Select(i => (double)i).ToArray());
-            Assert.Throws<ArgumentException>(() =>
-            {
-                _ = Matrix.CreateByColumns(data3);
-            });
+            var mat7 = Matrix.CreateByColumns(data3[0], data3[1], data3[2]);
         }
 
         [Fact]
