@@ -1,0 +1,14 @@
+<Project>
+    <PropertyGroup>
+        <Product>Parsifal</Product>
+        <Authors>itachijames</Authors>
+		<Company>itachijames</Company>
+        <Copyright>© ITACHIJAMES. All Rights Reserved.</Copyright>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/itachijames/Parsifal.Math</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/itachijames/Parsifal.Math.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    </PropertyGroup>
+</Project>

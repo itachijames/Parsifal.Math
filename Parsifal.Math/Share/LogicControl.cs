@@ -44,15 +44,16 @@ namespace Parsifal.Math
                         UseDefault();
                         break;
                     case LogicProviderType.MKL:
-                        //LogicProvider = new MklProvider();
+                        LogicProvider = new Provider.MKL.MklProvider();
                         break;
                     case LogicProviderType.CUDA:
+                        ThrowHelper.ThrowNotSupportedException(ErrorReason.NotSupportYet);
                         //LogicProvider = new CudaProvider();
                         break;
                 }
                 //todo
             }
-            return false;
+            return true;
         }
         /// <summary>
         /// 使用默认实现
@@ -73,7 +74,8 @@ namespace Parsifal.Math
                 case LogicProviderType.Native:
                     return true;
                 case LogicProviderType.MKL:
-                    break;
+                    return true;
+                //break;
                 case LogicProviderType.CUDA:
                     break;
                 default:

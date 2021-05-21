@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Parsifal.Math.Algebra;
 using Xunit;
@@ -64,6 +65,29 @@ namespace Parsifal.Math.UnitTest
 
             data3[1] = new Vector(Enumerable.Range(15, 4).Select(i => (double)i).ToArray());
             var mat7 = Matrix.CreateByColumns(data3[0], data3[1], data3[2]);
+        }
+
+        [Theory]
+        [InlineData(LogicProviderType.Native)]
+        //[InlineData(LogicProviderType.MKL)]
+        public void MatrixTest(LogicProviderType providerType)
+        {
+            var data = Enumerable.Range(1, 12).Select(i => (double)i);
+            var mat1 = Matrix.CreateByColumnMajorData(3, 4, data);
+            var mat2 = Matrix.CreateByRowMajorData(4, 3, data);
+
+            var addS = mat1.Add(100);
+            //var addM = mat1.Add(mat2);
+            var subS = mat1.Subtract(-10);
+            //var subM = mat1.Subtract(mat2);
+            var mulN = mat1 * mat2;
+
+            var currentPath = Environment.CurrentDirectory;
+            if (LogicControl.Use(providerType))
+            {
+                var mulMkl = mat1 * mat2;
+                var mulMklStr = mulMkl.ToString();
+            }
         }
 
         [Fact]

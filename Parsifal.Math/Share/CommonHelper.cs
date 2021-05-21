@@ -4,8 +4,25 @@ using System.Linq;
 
 namespace Parsifal.Math
 {
-    internal class CommonHelper
+    internal static class CommonHelper
     {
+        const int FloatSize = sizeof(float);
+        const int DoubleSize = sizeof(double);
+
+        /// <summary>
+        /// 拷贝到目标数组(不检查参数，需保证两者长度相同)
+        /// </summary>
+        public static void CopyToWithoutCheck(this float[] source, float[] target)
+        {
+            Buffer.BlockCopy(source, 0, target, 0, source.Length * FloatSize);
+        }
+        /// <summary>
+        /// 拷贝到目标数组(不检查参数，需保证两者长度相同)
+        /// </summary>
+        public static void CopyToWithoutCheck(this double[] source, double[] target)
+        {
+            Buffer.BlockCopy(source, 0, target, 0, source.Length * DoubleSize);
+        }
         /// <summary>
         /// 是否有重复项
         /// </summary>

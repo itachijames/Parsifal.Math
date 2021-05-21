@@ -13,6 +13,7 @@
         /// <summary>
         /// Nvidia CUDA
         /// </summary>
-        CUDA
+        CUDA,
+        //more to add
     }
 }

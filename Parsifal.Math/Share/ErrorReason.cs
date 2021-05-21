@@ -7,6 +7,7 @@
     {
         public const string UnknowType = "未知类型";
         public const string WrongType = "类型错误";
+        public const string NotSupportYet = "暂不支持";
         public const string NotSupportedOperation = "不支持的操作";
 
         public const string InvalidParameter = "无效参数";

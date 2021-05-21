@@ -2,7 +2,7 @@
 
 namespace Parsifal.Math
 {
-    public class ParallelHelper
+    internal class ParallelHelper
     {
         /// <summary>
         /// 是否不应使用并行计算

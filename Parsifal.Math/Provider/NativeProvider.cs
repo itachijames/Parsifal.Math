@@ -39,7 +39,7 @@ namespace Parsifal.Math
                 Array.Clear(result, 0, result.Length);
             else if (scalar == 1d)
             {
-                CopyToTarget(x, result);
+                x.CopyToWithoutCheck(result);
             }
             else
             {
@@ -96,14 +96,15 @@ namespace Parsifal.Math
         }
 
         #region helper
-        const int DoubleSize = sizeof(double);
         static double GetMatrixItem(double[] mat, int rows, int cols, int rowIndex, int colIndex)
         {
-            return mat[rowIndex * cols + cols];//行主序
+            return mat[colIndex * rows + rowIndex];//列主序
+            //return mat[rowIndex * cols + colIndex];//行主序
         }
         static void SetMatrixItem(double[] mat, int rows, int cols, int rowIndex, int colIndex, double value)
         {
-            mat[rowIndex * cols + cols] = value;//行主序
+            mat[colIndex * rows + rowIndex] = value;//列主序
+            //mat[rowIndex * cols + colIndex] = value;//行主序
         }
         static bool MatrixShouldNotUseParallel(int rows, int cols)
         {
@@ -112,10 +113,6 @@ namespace Parsifal.Math
         static bool VectorShouldNotUseParallel(int length)
         {
             return length <= 1024;
-        }
-        static void CopyToTarget(double[] source, double[] target)
-        {
-            Buffer.BlockCopy(source, 0, target, 0, source.Length * DoubleSize);
         }
         #endregion
     }
