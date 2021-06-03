@@ -51,10 +51,6 @@ namespace Parsifal.Math.Algebra
         /// 元素数量
         /// </summary>
         public int Count => _elements.Length;
-        /// <summary>
-        /// 是否为方阵
-        /// </summary>
-        public bool IsSquare => _rowCount == _colCount;
         #endregion
 
         #region constructor

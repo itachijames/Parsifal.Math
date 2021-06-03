@@ -56,9 +56,7 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            double result = 0d;
-            LogicControl.LogicProvider.VectorDotProduct(left._elements, right._elements, result);
-            return result;
+            return LogicControl.LogicProvider.VectorDotProduct(left._elements, right._elements);
         }
         #endregion
 
@@ -78,6 +76,10 @@
         public Vector Multiply(double scalar)
         {
             return Vector.Multiply(this, scalar);
+        }
+        public Vector Multiply(Matrix matrix)
+        {
+            return Matrix.Multiply(this, matrix);
         }
         public Vector Divide(double scalar)
         {

@@ -17,7 +17,7 @@ namespace Parsifal.Math.Algebra
         {
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
-            if (!matrix.IsSquare)
+            if (matrix.Rows != matrix.Columns)
                 ThrowHelper.ThrowNotSupportedException(ErrorReason.OnlyForSquareMatrix);
             _pivots = new int[matrix.Rows];
             Init();

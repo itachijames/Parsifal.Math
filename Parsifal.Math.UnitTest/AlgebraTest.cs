@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Parsifal.Math.Algebra;
 using Xunit;
@@ -70,24 +69,35 @@ namespace Parsifal.Math.UnitTest
         [Theory]
         [InlineData(LogicProviderType.Native)]
         //[InlineData(LogicProviderType.MKL)]
+        //[InlineData(LogicProviderType.CUDA)]
         public void MatrixTest(LogicProviderType providerType)
         {
-            var data = Enumerable.Range(1, 12).Select(i => (double)i);
-            var mat1 = Matrix.CreateByColumnMajorData(3, 4, data);
-            var mat2 = Matrix.CreateByRowMajorData(4, 3, data);
+            var data1 = Enumerable.Range(1, 12).Select(i => (double)i);
+            var mat1 = Matrix.CreateByColumnMajorData(3, 4, data1);//3*4
+            var data2 = Enumerable.Range(-5, 12).Select(i => (double)i);
+            var mat2 = Matrix.CreateByRowMajorData(4, 3, data2);//4*3
 
             var addS = mat1.Add(100);
             //var addM = mat1.Add(mat2);
             var subS = mat1.Subtract(-10);
             //var subM = mat1.Subtract(mat2);
-            var mulN = mat1 * mat2;
+            var m1 = mat1 * mat2;//3*3
 
-            var currentPath = Environment.CurrentDirectory;
             if (LogicControl.Use(providerType))
             {
-                var mulMkl = mat1 * mat2;
-                var mulMklStr = mulMkl.ToString();
+                var mulT = mat1 * mat2;
+                var mulTStr = mulT.ToString();
+                Assert.Equal(m1, mulT);
             }
+
+            var mat1T = mat1.Transpose();//4*3
+            var mat2T = mat2.Transpose();//3*4
+            var m2 = Matrix.MultiplyTranspose(mat1T, mat2);//4*4
+            var ms1 = m2.ToString();
+            var m3 = Matrix.TransposeMultiply(mat1T, mat2);//3*3
+            Assert.Equal(m1, m3);
+            var m4 = Matrix.TransposeMultiply(mat1, mat2T);//4*4
+            Assert.Equal(m2, m4);
         }
 
         [Fact]
@@ -97,5 +107,37 @@ namespace Parsifal.Math.UnitTest
             var vec = new Vector(element);
             vec.Clear();
         }
+
+        //[Theory]
+        //[InlineData(32)]
+        //[InlineData(50)]
+        //[InlineData(64)]
+        //[InlineData(100)]
+        //[InlineData(200)]
+        //[InlineData(500)]
+        //[InlineData(1000)]
+        //public void LALogicProviderTest(int order)
+        //{
+        //    ILogicProvider provider = new NativeProvider();
+
+        //    var random = new Random(Guid.NewGuid().GetHashCode());
+        //    var data1 = Enumerable.Range(1, 1_000_000).Select(i => random.NextDouble() * i / 100);
+        //    var mX = Matrix.CreateByColumnMajorData(order, order, data1);
+        //    var data2 = Enumerable.Range(-5000, 1_000_000).Select(i => random.NextDouble() * i / 100);
+        //    var mY = Matrix.CreateByColumnMajorData(order, order, data2);
+
+        //    var result1 = new double[order * order];
+        //    provider.MatrixMultiply(mX.Rows, mX.Columns, mX.Storage, mY.Rows, mY.Columns, mY.Storage, result1);
+        //    var result2 = new double[order * order];
+        //    provider.MatrixMultiply(1, mX.Rows, mX.Columns, mX.Storage, MatrixTranspose.NotTranspose, mY.Rows, mY.Columns, mY.Storage, MatrixTranspose.NotTranspose, 0, result2);
+        //    Assert.Equal(result1, result2);
+
+        //    //var mXT = mX.Transpose();
+        //    //var result3 = new double[250000];
+        //    //provider.MatrixMultiply(mXT.Rows, mXT.Columns, mXT.Storage, mY.Rows, mY.Columns, mY.Storage, result3);
+        //    //var result4 = new double[250000];
+        //    //provider.MatrixMultiply(1, mX.Rows, mX.Columns, mX.Storage, MatrixTranspose.Transpose, mY.Rows, mY.Columns, mY.Storage, MatrixTranspose.NotTranspose, 0, result4);
+        //    //Assert.Equal(result3, result4);
+        //}
     }
 }

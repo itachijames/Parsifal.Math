@@ -16,7 +16,7 @@
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] data = new double[matrix._elements.Length];
-            LogicControl.LogicProvider.ArrayAdd(scalar, matrix._elements, data);
+            LogicControl.LogicProvider.ArrayAddScalar(scalar, matrix._elements, data);
             return new Matrix(matrix._rowCount, matrix._colCount, data);
         }
         public static Matrix Add(double scalar, Matrix matrix)
@@ -45,7 +45,7 @@
             double[] temp = new double[matrix._elements.Length];
             double[] data = new double[matrix._elements.Length];
             LogicControl.LogicProvider.ArrayMultiply(-1, matrix._elements, temp);
-            LogicControl.LogicProvider.ArrayAdd(scalar, temp, data);
+            LogicControl.LogicProvider.ArrayAddScalar(scalar, temp, data);
             return new Matrix(matrix._rowCount, matrix._colCount, data);
         }
         public static Matrix Subtract(Matrix left, Matrix right)
@@ -105,32 +105,14 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(vector, matrix);
             double[] data = new double[matrix._colCount];
-
-            for (int i = 0; i < matrix._colCount; i++)
-            {
-                double temp = 0d;
-                for (int j = 0; j < matrix._rowCount; j++)
-                {
-                    temp += matrix.Get(j, i) * vector.Get(j);
-                }
-                data[i] = temp;
-            }
-
+            LogicControl.LogicProvider.MatrixMultiply(1, vector.Dimension, vector.Storage,
+                matrix._rowCount, matrix._colCount, matrix._elements,
+                data);
             return new Vector(data);
         }
         public static Matrix Divide(Matrix matrix, double scalar)
         {
             return Matrix.Multiply(matrix, 1d / scalar);
-        }
-        public static Matrix Divide(Matrix left, Matrix right)
-        {
-            //right需为可逆矩阵
-            //结果为 left 乘 right逆
-            if (left is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(left));
-            if (right is null)
-                ThrowHelper.ThrowArgumentNullException(nameof(right));
-            throw new System.NotImplementedException();
         }
         /// <summary>
         /// <paramref name="left"/>乘以<paramref name="right"/>的转置
@@ -142,20 +124,12 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameColumn(left, right);
-            var result = new Matrix(left._rowCount, right._rowCount);
-            for (int i = 0; i < right._rowCount; i++)
-            {
-                for (int j = 0; j < left._rowCount; j++)
-                {
-                    double temp = 0d;
-                    for (int k = 0; k < left._colCount; k++)
-                    {
-                        temp += left.Get(j, k) * right.Get(i, k);
-                    }
-                    result.Set(j, i, temp);
-                }
-            }
-            return result;
+            double[] data = new double[left._rowCount * right._rowCount];
+            LogicControl.LogicProvider.MatrixMultiply(1.0,
+                left._rowCount, left._colCount, left._elements, MatrixTranspose.NotTranspose,
+                right._rowCount, right._colCount, right._elements, MatrixTranspose.Transpose,
+                0, data);
+            return new Matrix(left._rowCount, right._rowCount, data);
         }
         /// <summary>
         /// <paramref name="left"/>的转置乘以<paramref name="right"/>
@@ -167,20 +141,12 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameRow(left, right);
-            var result = new Matrix(left._colCount, right._colCount);
-            for (int i = 0; i < right._colCount; i++)
-            {
-                for (int j = 0; j < left._colCount; j++)
-                {
-                    double temp = 0d;
-                    for (int k = 0; k < left._rowCount; k++)
-                    {
-                        temp += left.Get(k, j) * right.Get(k, i);
-                    }
-                    result.Set(j, i, temp);
-                }
-            }
-            return result;
+            double[] data = new double[left._colCount * right._colCount];
+            LogicControl.LogicProvider.MatrixMultiply(1.0,
+                left._rowCount, left._colCount, left._elements, MatrixTranspose.Transpose,
+                right._rowCount, right._colCount, right._elements, MatrixTranspose.NotTranspose,
+                0, data);
+            return new Matrix(left._colCount, right._colCount, data);
         }
         #endregion
 
@@ -221,7 +187,7 @@
         {
             return Matrix.Divide(this, scalar);
         }
-        public Matrix TransposeAndMultiply(Matrix matrix)
+        public Matrix TransposeThenMultiply(Matrix matrix)
         {
             return Matrix.TransposeMultiply(this, matrix);
         }

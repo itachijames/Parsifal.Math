@@ -1,10 +1,12 @@
-﻿namespace Parsifal.Math.Provider.MKL
+﻿using Parsifal.Math.Algebra;
+
+namespace Parsifal.Math.Provider.MKL
 {
     internal class MklProvider : ILogicProvider
     {
         public LogicProviderType Provider => LogicProviderType.MKL;
 
-        public void ArrayAdd(double scalar, double[] x, double[] result)
+        public void ArrayAddScalar(double scalar, double[] x, double[] result)
         {
 
         }
@@ -32,11 +34,14 @@
             MklNativeMethod.dMatrixMatrixProduct(CBLAS_TRANSPOSE.CblasNoTrans, CBLAS_TRANSPOSE.CblasNoTrans, rowsX, columnsX, columnsY, x, y, 1, 0, result);
         }
 
-        public void VectorDotProduct(double[] x, double[] y, double result)
+        public double VectorDotProduct(double[] x, double[] y)
         {
-            result = MklNativeMethod.dVectorDotProduct(x, y, x.Length);
+            return MklNativeMethod.dVectorDotProduct(x, y, x.Length);
         }
 
-
+        public void MatrixMultiply(double alpha, int rowsX, int columnsX, double[] x, MatrixTranspose transposeX, int rowsY, int columnsY, double[] y, MatrixTranspose transposeY, double beta, double[] result)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

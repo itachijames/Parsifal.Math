@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Parsifal.Math.Provider.Native;
 
 namespace Parsifal.Math
 {
