@@ -47,7 +47,9 @@
         }
         public static Vector Divide(Vector vector, double scalar)
         {
-            return Multiply(vector, 1.0 / scalar);
+            if (scalar.IsZero())
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.ZeroParameter, nameof(scalar));
+            return Vector.Multiply(vector, 1.0 / scalar);
         }
         public static double DotProduct(Vector left, Vector right)
         {

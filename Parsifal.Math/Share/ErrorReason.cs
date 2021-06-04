@@ -11,6 +11,7 @@
         public const string NotSupportedOperation = "不支持的操作";
 
         public const string InvalidParameter = "无效参数";
+        public const string ZeroParameter = "参数为零";
         public const string NegativeParameter = "参数为负";
         public const string NotPositiveParameter = "参数不为正数";
         public const string SameParameter = "参数相同";

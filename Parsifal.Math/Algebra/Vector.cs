@@ -239,14 +239,14 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         public Matrix ToRowMatrix()
         {
-            return Matrix.CreateByColumnMajorData(1, _elements.Length, _elements);
+            return MatrixCreator.CreateByColumnMajorData(1, _elements.Length, _elements);
         }
         /// <summary>
         /// 转为列矩阵
         /// </summary>
         public Matrix ToColumnMatrix()
         {
-            return Matrix.CreateByColumnMajorData(_elements.Length, 1, _elements);
+            return MatrixCreator.CreateByColumnMajorData(_elements.Length, 1, _elements);
         }
         /// <summary>
         /// 转为一维数组

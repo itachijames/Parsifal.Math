@@ -61,13 +61,6 @@
             if (columnIndex < 0 || columnIndex >= _colCount)
                 ThrowHelper.ThrowIndexOutOfRangeException(nameof(columnIndex));
         }
-        private static void CheckValidRowAndColumn(int rows, int columns)
-        {
-            if (rows < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-            if (columns < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
-        }
         private static void CheckSquareMatrix(Matrix matrix)
         {
             if (matrix._rowCount != matrix._colCount)

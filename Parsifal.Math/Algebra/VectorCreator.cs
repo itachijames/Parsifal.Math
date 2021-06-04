@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Parsifal.Math.Algebra
 {
-    public partial class Vector
+    public class VectorCreator
     {
         /// <summary>
         /// 创建指定元素的向量
@@ -13,6 +13,8 @@ namespace Parsifal.Math.Algebra
         /// <param name="initFunc">元素初始化方法</param>
         public static Vector CreateWithSpecify(int length, Func<int, double> initFunc)
         {
+            if (length < 0)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(length));
             if (initFunc is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(initFunc));
             double[] data = new double[length];

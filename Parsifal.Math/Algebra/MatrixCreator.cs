@@ -4,8 +4,17 @@ using System.Linq;
 
 namespace Parsifal.Math.Algebra
 {
-    public partial class Matrix
+    public class MatrixCreator
     {
+        const int DoubleSize = sizeof(double);
+        static void CheckValidRowAndColumn(int rows, int columns)
+        {
+            if (rows < 1)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
+            if (columns < 1)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
+        }
+
         /// <summary>
         /// 创建指定阶单位矩阵
         /// </summary>
@@ -74,7 +83,7 @@ namespace Parsifal.Math.Algebra
         /// 根据二维数组创建对应矩阵
         /// </summary>
         /// <param name="array">二维数组</param>
-        public static Matrix CreateByArray(double[,] array)
+        public static Matrix CreateByArray(in double[,] array)
         {
             if (array is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(array));

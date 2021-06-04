@@ -67,20 +67,25 @@ namespace Parsifal.Math.Algebra
         /// <param name="columns">列数</param>
         public Matrix(int rows, int columns)
         {
-            CheckValidRowAndColumn(rows, columns);
+            if (rows < 1)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
+            if (columns < 1)
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
             _rowCount = rows;
             _colCount = columns;
             _elements = new double[rows * columns];
         }
-        private Matrix(int rows, int columns, double[] elements)
+        internal Matrix(int rows, int columns, double[] elements)
         {
             //内部创建不再进行检查
-            //CheckValidRowAndColumn(rows, columns);
+            //if (rows < 1)
+            //    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
+            //if (columns < 1)
+            //    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
             //if (elements is null || elements.Length == 0)
             //    ThrowHelper.ThrowArgumentNullException(nameof(elements));
-            //if (rows * columns != elements.Length)
-            //    ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(elements));
-
+            if (rows * columns != elements.Length)
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(elements));
             _rowCount = rows;
             _colCount = columns;
             _elements = elements;

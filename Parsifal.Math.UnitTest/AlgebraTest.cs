@@ -11,7 +11,7 @@ namespace Parsifal.Math.UnitTest
         public void MatrixBaseTest()
         {
             var element1 = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            var mat1 = Matrix.CreateByColumnMajorData(3, 3, element1);
+            var mat1 = MatrixCreator.CreateByColumnMajorData(3, 3, element1);
             var ss = mat1.ToString();
             Assert.Equal(mat1.Count, element1.Length);
             var lowT1 = mat1.LowerTriangle();
@@ -20,7 +20,7 @@ namespace Parsifal.Math.UnitTest
             var us1 = upT1.ToString();
 
             var element2 = new double[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 }, { 10, 11, 12 } };
-            var mat2 = Matrix.CreateByArray(element2);
+            var mat2 = MatrixCreator.CreateByArray(element2);
             var strF = mat2.ToString();
             var lowT2 = mat2.LowerTriangle();
             var ls2 = lowT2.ToString();
@@ -38,8 +38,8 @@ namespace Parsifal.Math.UnitTest
         public void MatrixCreateTest()
         {
             var data1 = Enumerable.Range(0, 12).Select(i => (double)i);
-            var mat1 = Matrix.CreateByColumnMajorData(3, 4, data1);
-            var mat2 = Matrix.CreateByRowMajorData(4, 3, data1);
+            var mat1 = MatrixCreator.CreateByColumnMajorData(3, 4, data1);
+            var mat2 = MatrixCreator.CreateByRowMajorData(4, 3, data1);
             Assert.Equal(mat1, mat2.Transpose());
 
             var data2 = new List<IEnumerable<double>>
@@ -48,8 +48,8 @@ namespace Parsifal.Math.UnitTest
                 Enumerable.Range(11,4).Select(i=>(double)i),
                 Enumerable.Range(21,4).Select(i=>(double)i)
             };
-            var mat3 = Matrix.CreateByColumns(data2);
-            var mat4 = Matrix.CreateByRows(data2);
+            var mat3 = MatrixCreator.CreateByColumns(data2);
+            var mat4 = MatrixCreator.CreateByRows(data2);
             Assert.Equal(mat3, mat4.Transpose());
 
             var data3 = new List<Vector>
@@ -58,12 +58,12 @@ namespace Parsifal.Math.UnitTest
                 Enumerable.Range(15,6).Select(i=>(double)i).ToArray(),
                 Enumerable.Range(25,7).Select(i=>(double)i).ToArray()
             };
-            var mat5 = Matrix.CreateByColumns(data3);
-            var mat6 = Matrix.CreateByRows(data3);
+            var mat5 = MatrixCreator.CreateByColumns(data3);
+            var mat6 = MatrixCreator.CreateByRows(data3);
             Assert.True(mat5.Transpose().Equals(mat6));
 
             data3[1] = new Vector(Enumerable.Range(15, 4).Select(i => (double)i).ToArray());
-            var mat7 = Matrix.CreateByColumns(data3[0], data3[1], data3[2]);
+            var mat7 = MatrixCreator.CreateByColumns(data3[0], data3[1], data3[2]);
         }
 
         [Theory]
@@ -73,9 +73,9 @@ namespace Parsifal.Math.UnitTest
         public void MatrixTest(LogicProviderType providerType)
         {
             var data1 = Enumerable.Range(1, 12).Select(i => (double)i);
-            var mat1 = Matrix.CreateByColumnMajorData(3, 4, data1);//3*4
+            var mat1 = MatrixCreator.CreateByColumnMajorData(3, 4, data1);//3*4
             var data2 = Enumerable.Range(-5, 12).Select(i => (double)i);
-            var mat2 = Matrix.CreateByRowMajorData(4, 3, data2);//4*3
+            var mat2 = MatrixCreator.CreateByRowMajorData(4, 3, data2);//4*3
 
             var addS = mat1.Add(100);
             //var addM = mat1.Add(mat2);
@@ -122,9 +122,9 @@ namespace Parsifal.Math.UnitTest
 
         //    var random = new Random(Guid.NewGuid().GetHashCode());
         //    var data1 = Enumerable.Range(1, 1_000_000).Select(i => random.NextDouble() * i / 100);
-        //    var mX = Matrix.CreateByColumnMajorData(order, order, data1);
+        //    var mX = MatrixCreator.CreateByColumnMajorData(order, order, data1);
         //    var data2 = Enumerable.Range(-5000, 1_000_000).Select(i => random.NextDouble() * i / 100);
-        //    var mY = Matrix.CreateByColumnMajorData(order, order, data2);
+        //    var mY = MatrixCreator.CreateByColumnMajorData(order, order, data2);
 
         //    var result1 = new double[order * order];
         //    provider.MatrixMultiply(mX.Rows, mX.Columns, mX.Storage, mY.Rows, mY.Columns, mY.Storage, result1);

@@ -112,6 +112,8 @@
         }
         public static Matrix Divide(Matrix matrix, double scalar)
         {
+            if (scalar.IsZero())
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.ZeroParameter, nameof(scalar));
             return Matrix.Multiply(matrix, 1d / scalar);
         }
         /// <summary>
@@ -183,6 +185,10 @@
         {
             return Matrix.Multiply(this, vector);
         }
+        public Vector LeftMultiply(Vector vector)
+        {
+            return Matrix.Multiply(vector, this);
+        }
         public Matrix Divide(double scalar)
         {
             return Matrix.Divide(this, scalar);
@@ -200,7 +206,7 @@
         #region operator
         public static explicit operator Matrix(double[,] element)
         {//显式转换
-            return Matrix.CreateByArray(element);
+            return MatrixCreator.CreateByArray(element);
         }
         public static bool operator ==(Matrix left, Matrix right)
         {
