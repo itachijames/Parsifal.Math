@@ -3,10 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <Product>Parsifal.Math</Product>
-    <Authors>itachijames</Authors>
-    <Company>itachijames</Company>
-    <Copyright>© ITACHIJAMES. All Rights Reserved.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

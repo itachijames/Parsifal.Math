@@ -3,22 +3,10 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<PackageId>Parsifal.Math</PackageId>
-		<Version>1.1.1</Version>
-		<AssemblyVersion>1.1.1.0</AssemblyVersion>
-		<FileVersion>1.1.1.0</FileVersion>
-		<PackageTags>Math,Geometry,Algebra</PackageTags>
-		<Product>Parsifal</Product>
-		<Authors>itachijames</Authors>
-		<Company>itachijames</Company>
 		<Description>数学工具库</Description>
-		<Copyright>© ITACHIJAMES. All Rights Reserved.</Copyright>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<PackageProjectUrl>https://github.com/itachijames/Parsifal.Math</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/itachijames/Parsifal.Math.git</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
+		<PackageTags>Math,Geometry,Algebra</PackageTags>
 		<NoWarn>1591;1701;1702</NoWarn>
+		<Version>1.1.1</Version>
 	</PropertyGroup>
 
 </Project>
