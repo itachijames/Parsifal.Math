@@ -6,10 +6,10 @@ namespace Parsifal.Math.Benchmark
     [MemoryDiagnoser]
     public class MatrixMultiplyPerformance
     {
-        readonly ILogicProvider _direLogic;
-        readonly ILogicProvider _parlLogic;
-        readonly ILogicProvider _mklLogic;
-        readonly ILogicProvider _cudaLogic;
+        readonly ILinearAlgebraProvider _direLogic;
+        readonly ILinearAlgebraProvider _parlLogic;
+        readonly ILinearAlgebraProvider _mklLogic;
+        readonly ILinearAlgebraProvider _cudaLogic;
 
         [Params(4, 8, 16, 32, 64, 128, 256, 512, 1024)]
         int MatOrder;

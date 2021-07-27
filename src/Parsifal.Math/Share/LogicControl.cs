@@ -9,9 +9,10 @@ namespace Parsifal.Math
     public static class LogicControl
     {
         /// <summary>
-        /// 当前算法逻辑提供/实现者
+        /// 线性代数算法实现
         /// </summary>
-        public static ILogicProvider LogicProvider { get; private set; }
+        public static ILinearAlgebraProvider LinearAlgebraProvider { get; private set; }
+
         private static int _maxDegreeOfParallelism;
         /// <summary>
         /// 最大并行数
@@ -45,7 +46,7 @@ namespace Parsifal.Math
                         UseDefault();
                         break;
                     case LogicProviderType.MKL:
-                        LogicProvider = new Provider.MKL.MklProvider();
+                        LinearAlgebraProvider = new Provider.MKL.MklProvider();
                         break;
                     case LogicProviderType.CUDA:
                         ThrowHelper.ThrowNotSupportedException(ErrorReason.NotSupportYet);
@@ -61,9 +62,9 @@ namespace Parsifal.Math
         /// </summary>
         public static void UseDefault()
         {//使用原生实现
-            if (LogicProvider != null && typeof(NativeProvider) == LogicProvider.GetType())
+            if (LinearAlgebraProvider != null && typeof(NativeProvider) == LinearAlgebraProvider.GetType())
                 return;
-            LogicProvider = new NativeProvider();
+            LinearAlgebraProvider = new NativeProvider();
         }
         /// <summary>
         /// 指定算法逻辑是否可用
@@ -99,7 +100,7 @@ namespace Parsifal.Math
 #elif NET5_0_OR_GREATER
             sb.AppendLine("Built for .Net 5.0+");
 #endif
-            sb.AppendLine($"Logic Provider: {LogicProvider}");
+            sb.AppendLine($"Logic Provider: {LinearAlgebraProvider}");
             sb.AppendLine($"Operating System: {RuntimeInformation.OSDescription}");
             sb.AppendLine($"Operating System Architecture: {RuntimeInformation.OSArchitecture}");
             sb.AppendLine($"Framework: {RuntimeInformation.FrameworkDescription}");

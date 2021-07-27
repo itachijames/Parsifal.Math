@@ -2,9 +2,12 @@
 
 namespace Parsifal.Math
 {
-    public interface ILogicProvider
+    public interface ILinearAlgebraProvider
     {
-        LogicProviderType Provider { get; }
+        /// <summary>
+        /// 类型
+        /// </summary>
+        LogicProviderType ProviderType { get; }
 
         #region Versatile
         /// <summary>

@@ -8,7 +8,7 @@
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             double[] data = new double[vector._elements.Length];
-            LogicControl.LogicProvider.ArrayMultiply(-1, vector._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayMultiply(-1, vector._elements, data);
             return data;
         }
         public static Vector Add(Vector left, Vector right)
@@ -19,7 +19,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
             double[] data = new double[left._elements.Length];
-            LogicControl.LogicProvider.ArrayAdd(left._elements, right._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayAdd(left._elements, right._elements, data);
             return data;
         }
         public static Vector Subtract(Vector left, Vector right)
@@ -30,7 +30,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
             double[] data = new double[left._elements.Length];
-            LogicControl.LogicProvider.ArraySubtract(left._elements, right._elements, data);
+            LogicControl.LinearAlgebraProvider.ArraySubtract(left._elements, right._elements, data);
             return data;
         }
         public static Vector Multiply(Vector vector, double scalar)
@@ -38,7 +38,7 @@
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             double[] data = new double[vector._elements.Length];
-            LogicControl.LogicProvider.ArrayMultiply(scalar, vector._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayMultiply(scalar, vector._elements, data);
             return data;
         }
         public static Vector Multiply(double scalar, Vector vector)
@@ -58,7 +58,7 @@
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            return LogicControl.LogicProvider.VectorDotProduct(left._elements, right._elements);
+            return LogicControl.LinearAlgebraProvider.VectorDotProduct(left._elements, right._elements);
         }
         #endregion
 

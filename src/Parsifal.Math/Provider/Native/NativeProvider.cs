@@ -9,9 +9,9 @@ namespace Parsifal.Math.Provider.Native
     /// C#原生算法
     /// </summary>
     /// <remarks>实现均不校验参数异常,如参数为空、输入输出长度不一致、无意义数；但会校验一些逻辑值，如乘法维度匹配等</remarks>
-    internal sealed class NativeProvider : ILogicProvider//设为internal阻止外部直接调用
+    internal sealed class NativeProvider : ILinearAlgebraProvider//设为internal阻止外部直接调用
     {
-        public LogicProviderType Provider => LogicProviderType.Native;
+        public LogicProviderType ProviderType => LogicProviderType.Native;
 
         public void ArrayAddScalar(double scalar, double[] x, double[] result)
         {

@@ -3,7 +3,7 @@
     public enum LogicProviderType
     {
         /// <summary>
-        /// 原生
+        /// pure c#
         /// </summary>
         Native,
         /// <summary>

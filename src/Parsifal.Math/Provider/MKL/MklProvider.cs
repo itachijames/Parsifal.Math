@@ -2,9 +2,9 @@
 
 namespace Parsifal.Math.Provider.MKL
 {
-    internal class MklProvider : ILogicProvider
+    internal class MklProvider : ILinearAlgebraProvider
     {
-        public LogicProviderType Provider => LogicProviderType.MKL;
+        public LogicProviderType ProviderType => LogicProviderType.MKL;
 
         public void ArrayAddScalar(double scalar, double[] x, double[] result)
         {

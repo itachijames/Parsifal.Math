@@ -8,7 +8,7 @@
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] data = new double[matrix._elements.Length];
-            LogicControl.LogicProvider.ArrayMultiply(-1, matrix._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayMultiply(-1, matrix._elements, data);
             return new Matrix(matrix._rowCount, matrix._colCount, data);
         }
         public static Matrix Add(Matrix matrix, double scalar)
@@ -16,7 +16,7 @@
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] data = new double[matrix._elements.Length];
-            LogicControl.LogicProvider.ArrayAddScalar(scalar, matrix._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayAddScalar(scalar, matrix._elements, data);
             return new Matrix(matrix._rowCount, matrix._colCount, data);
         }
         public static Matrix Add(double scalar, Matrix matrix)
@@ -31,7 +31,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
             double[] data = new double[left._elements.Length];
-            LogicControl.LogicProvider.ArrayAdd(left._elements, right._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayAdd(left._elements, right._elements, data);
             return new Matrix(left._rowCount, left._colCount, data);
         }
         public static Matrix Subtract(Matrix matrix, double scalar)
@@ -44,8 +44,8 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] temp = new double[matrix._elements.Length];
             double[] data = new double[matrix._elements.Length];
-            LogicControl.LogicProvider.ArrayMultiply(-1, matrix._elements, temp);
-            LogicControl.LogicProvider.ArrayAddScalar(scalar, temp, data);
+            LogicControl.LinearAlgebraProvider.ArrayMultiply(-1, matrix._elements, temp);
+            LogicControl.LinearAlgebraProvider.ArrayAddScalar(scalar, temp, data);
             return new Matrix(matrix._rowCount, matrix._colCount, data);
         }
         public static Matrix Subtract(Matrix left, Matrix right)
@@ -56,7 +56,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
             double[] data = new double[left._elements.Length];
-            LogicControl.LogicProvider.ArraySubtract(left._elements, right._elements, data);
+            LogicControl.LinearAlgebraProvider.ArraySubtract(left._elements, right._elements, data);
             return new Matrix(left._rowCount, left._colCount, data);
         }
         public static Matrix Multiply(Matrix matrix, double scalar)
@@ -64,7 +64,7 @@
             if (matrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(matrix));
             double[] data = new double[matrix._elements.Length];
-            LogicControl.LogicProvider.ArrayMultiply(scalar, matrix._elements, data);
+            LogicControl.LinearAlgebraProvider.ArrayMultiply(scalar, matrix._elements, data);
             return new Matrix(matrix._rowCount, matrix._colCount, data);
         }
         public static Matrix Multiply(double scalar, Matrix matrix)
@@ -79,7 +79,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckMultipliable(left, right);
             double[] data = new double[left._rowCount * right._colCount];
-            LogicControl.LogicProvider.MatrixMultiply(left._rowCount, left._colCount, left._elements,
+            LogicControl.LinearAlgebraProvider.MatrixMultiply(left._rowCount, left._colCount, left._elements,
                 right._rowCount, right._colCount, right._elements,
                 data);
             return new Matrix(left._rowCount, right._colCount, data);
@@ -92,7 +92,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(matrix, vector);
             double[] data = new double[matrix._rowCount];
-            LogicControl.LogicProvider.MatrixMultiply(matrix._rowCount, matrix._colCount, matrix._elements,
+            LogicControl.LinearAlgebraProvider.MatrixMultiply(matrix._rowCount, matrix._colCount, matrix._elements,
                 vector.Count, 1, vector.Storage,
                 data);
             return new Vector(data);
@@ -105,7 +105,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(vector, matrix);
             double[] data = new double[matrix._colCount];
-            LogicControl.LogicProvider.MatrixMultiply(1, vector.Count, vector.Storage,
+            LogicControl.LinearAlgebraProvider.MatrixMultiply(1, vector.Count, vector.Storage,
                 matrix._rowCount, matrix._colCount, matrix._elements,
                 data);
             return new Vector(data);
@@ -127,7 +127,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameColumn(left, right);
             double[] data = new double[left._rowCount * right._rowCount];
-            LogicControl.LogicProvider.MatrixMultiply(1.0,
+            LogicControl.LinearAlgebraProvider.MatrixMultiply(1.0,
                 left._rowCount, left._colCount, left._elements, MatrixTranspose.NotTranspose,
                 right._rowCount, right._colCount, right._elements, MatrixTranspose.Transpose,
                 0, data);
@@ -144,7 +144,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameRow(left, right);
             double[] data = new double[left._colCount * right._colCount];
-            LogicControl.LogicProvider.MatrixMultiply(1.0,
+            LogicControl.LinearAlgebraProvider.MatrixMultiply(1.0,
                 left._rowCount, left._colCount, left._elements, MatrixTranspose.Transpose,
                 right._rowCount, right._colCount, right._elements, MatrixTranspose.NotTranspose,
                 0, data);

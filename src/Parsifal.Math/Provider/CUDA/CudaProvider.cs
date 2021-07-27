@@ -3,9 +3,9 @@ using Parsifal.Math.Algebra;
 
 namespace Parsifal.Math
 {
-    public class CudaProvider : ILogicProvider
+    public class CudaProvider : ILinearAlgebraProvider
     {
-        public LogicProviderType Provider => LogicProviderType.CUDA;
+        public LogicProviderType ProviderType => LogicProviderType.CUDA;
 
         public void ArrayAdd(double[] x, double[] y, double[] result)
         {
