@@ -88,12 +88,12 @@
         }
         private static void CheckMultipliable(Matrix matrix, Vector vector)
         {
-            if (matrix._colCount != vector.Dimension)
+            if (matrix._colCount != vector.Count)
                 ThrowHelper.ThrowDimensionDontMatchException(matrix, vector);
         }
         private static void CheckMultipliable(Vector vector, Matrix matrix)
         {
-            if (matrix._rowCount != vector.Dimension)
+            if (matrix._rowCount != vector.Count)
                 ThrowHelper.ThrowDimensionDontMatchException(vector, matrix);
         }
     }

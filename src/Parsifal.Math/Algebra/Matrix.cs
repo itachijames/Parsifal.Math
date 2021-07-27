@@ -145,7 +145,7 @@ namespace Parsifal.Math.Algebra
 
         #region BCL
         public override bool Equals(object obj) => obj is Matrix mat && Equals(mat);
-        public override int GetHashCode() => HashCode.Combine(_rowCount, _colCount, _elements.GetHashCode());
+        public override int GetHashCode() => HashCode.Combine(_rowCount, _colCount, _elements);
         public override string ToString() => ToString(UtilityHelper.DoubleFormat, System.Globalization.CultureInfo.CurrentCulture);
         #endregion
 

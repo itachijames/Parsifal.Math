@@ -68,7 +68,7 @@ namespace Parsifal.Math.Provider.Native
             if (columnsX != rowsY || rowsX * columnsY != result.Length)
                 ThrowHelper.ThrowDimensionDontMatchException();
             if (ParallelHelper.ShouldNotUseParallelism() || MatrixShouldNotUseParallel(rowsX, columnsX) || MatrixShouldNotUseParallel(rowsY, columnsY))
-            {
+            {//直算
                 for (int i = 0; i < rowsX; i++)
                 {
                     for (int j = 0; j < columnsY; j++)
@@ -128,7 +128,7 @@ namespace Parsifal.Math.Provider.Native
             if (alpha == 0d)
                 return;
             if (ParallelHelper.ShouldNotUseParallelism() || MatrixShouldNotUseParallel(rowsX, columnsX) || MatrixShouldNotUseParallel(rowsY, columnsY))
-            {
+            {//直算
                 double[] xRow = new double[columnsX];
                 double[] yCol = new double[rowsY];
                 for (int i = 0; i < rowsX; i++)

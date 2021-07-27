@@ -34,9 +34,9 @@ namespace Parsifal.Math.Algebra
             }
         }
         /// <summary>
-        /// 维数
+        /// 维度/项数
         /// </summary>
-        public int Dimension => _elements.Length;
+        public int Count => _elements.Length;
         #endregion
 
         #region constructor

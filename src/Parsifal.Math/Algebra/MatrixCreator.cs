@@ -181,11 +181,11 @@ namespace Parsifal.Math.Algebra
             if (rowsData.Length < 1)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowsData));
             int rows = rowsData.Length;
-            int cols = rowsData[0].Dimension;
+            int cols = rowsData[0].Count;
             double[] data = new double[rows * cols];
             for (int i = 0; i < rows; i++)
             {
-                int min = System.Math.Min(cols, rowsData[i].Dimension);
+                int min = System.Math.Min(cols, rowsData[i].Count);
                 for (int j = 0; j < min; j++)
                 {
                     data[j * rows + i] = rowsData[i].Get(j);
@@ -266,13 +266,13 @@ namespace Parsifal.Math.Algebra
             if (columnsData.Length < 1)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnsData));
             int cols = columnsData.Length;
-            int rows = columnsData[0].Dimension;
+            int rows = columnsData[0].Count;
             double[] data = new double[rows * cols];
             for (int i = 0; i < cols; i++)
             {
                 Buffer.BlockCopy(columnsData[i].Storage, 0,
                     data, i * rows * DoubleSize,
-                    System.Math.Min(rows, columnsData[i].Dimension) * DoubleSize);
+                    System.Math.Min(rows, columnsData[i].Count) * DoubleSize);
             }
             return new Matrix(rows, cols, data);
         }

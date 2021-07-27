@@ -31,7 +31,7 @@ namespace Parsifal.Math
                     else if (type.IsAssignableFrom(typeof(Vector)))
                     {
                         var vector = (Vector)arguments[i];
-                        sb.Append($" Argument {i + 1} is a {vector.Dimension} dimension vector.");
+                        sb.Append($" Argument {i + 1} is a {vector.Count} dimension vector.");
                     }
                     else if (type.IsAssignableFrom(typeof(Tensor)))
                     {

@@ -93,7 +93,7 @@
             CheckMultipliable(matrix, vector);
             double[] data = new double[matrix._rowCount];
             LogicControl.LogicProvider.MatrixMultiply(matrix._rowCount, matrix._colCount, matrix._elements,
-                vector.Dimension, 1, vector.Storage,
+                vector.Count, 1, vector.Storage,
                 data);
             return new Vector(data);
         }
@@ -105,7 +105,7 @@
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
             CheckMultipliable(vector, matrix);
             double[] data = new double[matrix._colCount];
-            LogicControl.LogicProvider.MatrixMultiply(1, vector.Dimension, vector.Storage,
+            LogicControl.LogicProvider.MatrixMultiply(1, vector.Count, vector.Storage,
                 matrix._rowCount, matrix._colCount, matrix._elements,
                 data);
             return new Vector(data);
