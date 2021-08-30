@@ -68,7 +68,7 @@ namespace Parsifal.Math.Geometry
         #region BCL
         public override bool Equals(object obj) => obj is Point3D point && Equals(point);
         public override int GetHashCode() => HashCode.Combine(_x, _y, _z);
-        public override string ToString() => $"({_x.ToString(UtilityHelper.DoubleFormat)}, {_y.ToString(UtilityHelper.DoubleFormat)}, {_z.ToString(UtilityHelper.DoubleFormat)})";
+        public override string ToString() => $"({_x.ToString(UtilityHelper.DigitalFormat)}, {_y.ToString(UtilityHelper.DigitalFormat)}, {_z.ToString(UtilityHelper.DigitalFormat)})";
         public void Deconstruct(out double x, out double y, out double z)
         {
             x = _x;

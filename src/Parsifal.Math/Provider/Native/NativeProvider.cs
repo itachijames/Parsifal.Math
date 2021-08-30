@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Numerics;
 using System.Threading.Tasks;
 using Parsifal.Math.Algebra;
 
@@ -9,17 +10,70 @@ namespace Parsifal.Math.Provider.Native
     /// C#原生算法
     /// </summary>
     /// <remarks>实现均不校验参数异常,如参数为空、输入输出长度不一致、无意义数；但会校验一些逻辑值，如乘法维度匹配等</remarks>
-    internal sealed class NativeProvider : ILinearAlgebraProvider//设为internal阻止外部直接调用
+    internal sealed class NativeProvider : LinearAlgebraProvider//设为internal阻止外部直接调用
     {
-        public LogicProviderType ProviderType => LogicProviderType.Native;
+        public LinearAlgebraProviderType ProviderType => LinearAlgebraProviderType.Native;
 
-        public void ArrayAddScalar(double scalar, double[] x, double[] result)
+        #region float
+        public void ArrayAdd(float[] x, float[] y, float[] result)
+        {
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = x[i] + y[i];
+            }
+        }
+        public void ArrayAddScalar(float scalar, float[] x, float[] result)
         {
             for (int i = 0; i < result.Length; i++)
             {
                 result[i] = scalar + x[i];
             }
         }
+        public void ArrayMultiply(float scalar, float[] x, float[] result)
+        {
+            if (scalar == 0f)
+                Array.Clear(result, 0, result.Length);
+            else if (scalar == 1f)
+            {
+                x.CopyToWithoutCheck(result);
+            }
+            else
+            {
+                for (int i = 0; i < result.Length; i++)
+                {
+                    result[i] = scalar * x[i];
+                }
+            }
+        }
+        public void ArraySubtract(float[] x, float[] y, float[] result)
+        {
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = x[i] - y[i];
+            }
+        }
+        public void MatrixMultiply(int rowsX, int columnsX, float[] x, int rowsY, int columnsY, float[] y, float[] result)
+        {
+            throw new NotImplementedException();
+        }
+        public void MatrixMultiply(float alpha, int rowsX, int columnsX, float[] x, MatrixTranspose transposeX, int rowsY, int columnsY, float[] y, MatrixTranspose transposeY, float beta, float[] result)
+        {
+            throw new NotImplementedException();
+        }
+        public float VectorDotProduct(float[] x, float[] y)
+        {
+            if (x.Length != y.Length)
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter);
+            float result = 0f;
+            for (int i = 0; i < x.Length; i++)
+            {
+                result += x[i] * y[i];
+            }
+            return result;
+        }
+        #endregion
+
+        #region double
         public void ArrayAdd(double[] x, double[] y, double[] result)
         {
             for (int i = 0; i < result.Length; i++)
@@ -27,11 +81,11 @@ namespace Parsifal.Math.Provider.Native
                 result[i] = x[i] + y[i];
             }
         }
-        public void ArraySubtract(double[] x, double[] y, double[] result)
+        public void ArrayAddScalar(double scalar, double[] x, double[] result)
         {
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = x[i] - y[i];
+                result[i] = scalar + x[i];
             }
         }
         public void ArrayMultiply(double scalar, double[] x, double[] result)
@@ -50,19 +104,13 @@ namespace Parsifal.Math.Provider.Native
                 }
             }
         }
-
-        public double VectorDotProduct(double[] x, double[] y)
+        public void ArraySubtract(double[] x, double[] y, double[] result)
         {
-            if (x.Length != y.Length)
-                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter);
-            double result = 0d;
-            for (int i = 0; i < x.Length; i++)
+            for (int i = 0; i < result.Length; i++)
             {
-                result += x[i] * y[i];
+                result[i] = x[i] - y[i];
             }
-            return result;
         }
-
         public void MatrixMultiply(int rowsX, int columnsX, double[] x, int rowsY, int columnsY, double[] y, double[] result)
         {
             if (columnsX != rowsY || rowsX * columnsY != result.Length)
@@ -171,6 +219,75 @@ namespace Parsifal.Math.Provider.Native
                     });
             }
         }
+        public double VectorDotProduct(double[] x, double[] y)
+        {
+            if (x.Length != y.Length)
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter);
+            double result = 0d;
+            for (int i = 0; i < x.Length; i++)
+            {
+                result += x[i] * y[i];
+            }
+            return result;
+        }
+        #endregion
+
+        #region complex
+        public void ArrayAdd(Complex[] x, Complex[] y, Complex[] result)
+        {
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = x[i] + y[i];
+            }
+        }
+        public void ArrayAddScalar(Complex scalar, Complex[] x, Complex[] result)
+        {
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = scalar + x[i];
+            }
+        }
+        public void ArrayMultiply(Complex scalar, Complex[] x, Complex[] result)
+        {
+            if (scalar.Real == 0 && scalar.Imaginary == 0)
+                Array.Clear(result, 0, result.Length);
+            else if (scalar.Real == 1 && scalar.Imaginary == 0)
+                x.CopyToWithoutCheck(result);
+            else
+            {
+                for (int i = 0; i < result.Length; i++)
+                {
+                    result[i] = scalar * x[i];
+                }
+            }
+        }
+        public void ArraySubtract(Complex[] x, Complex[] y, Complex[] result)
+        {
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = x[i] - y[i];
+            }
+        }
+        public void MatrixMultiply(int rowsX, int columnsX, Complex[] x, int rowsY, int columnsY, Complex[] y, Complex[] result)
+        {
+            throw new NotImplementedException();
+        }
+        public void MatrixMultiply(Complex alpha, int rowsX, int columnsX, Complex[] x, MatrixTranspose transposeX, int rowsY, int columnsY, Complex[] y, MatrixTranspose transposeY, Complex beta, Complex[] result)
+        {
+            throw new NotImplementedException();
+        }
+        public Complex VectorDotProduct(Complex[] x, Complex[] y)
+        {
+            if (x.Length != y.Length)
+                ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InconformityParameter);
+            Complex result = Complex.Zero;
+            for (int i = 0; i < x.Length; i++)
+            {
+                result += x[i] * y[i];
+            }
+            return result;
+        }
+        #endregion
 
         #region helper
         static bool MatrixShouldNotUseParallel(int rows, int cols)
@@ -200,3 +317,4 @@ namespace Parsifal.Math.Provider.Native
         #endregion
     }
 }
+

@@ -11,7 +11,7 @@ namespace Parsifal.Math
         /// <summary>
         /// 线性代数算法实现
         /// </summary>
-        public static ILinearAlgebraProvider LinearAlgebraProvider { get; private set; }
+        public static LinearAlgebraProvider LinearAlgebraProvider { get; private set; }
 
         private static int _maxDegreeOfParallelism;
         /// <summary>
@@ -36,26 +36,24 @@ namespace Parsifal.Math
         /// 使用指定算法逻辑
         /// </summary>
         /// <param name="providerType"></param>
-        public static bool Use(LogicProviderType providerType)
+        public static void Use(LinearAlgebraProviderType providerType)
         {
             if (IsAvaliable(providerType))
             {
                 switch (providerType)
                 {
-                    case LogicProviderType.Native:
+                    case LinearAlgebraProviderType.Native:
                         UseDefault();
                         break;
-                    case LogicProviderType.MKL:
-                        LinearAlgebraProvider = new Provider.MKL.MklProvider();
+                    case LinearAlgebraProviderType.MKL:
+                        //todo
                         break;
-                    case LogicProviderType.CUDA:
-                        ThrowHelper.ThrowNotSupportedException(ErrorReason.NotSupportYet);
-                        //LogicProvider = new CudaProvider();
+                    case LinearAlgebraProviderType.CUDA:
+                        //todo
                         break;
                 }
-                //todo
             }
-            return true;
+            ThrowHelper.ThrowNotSupportedException(ErrorReason.ServiceUnavailable);
         }
         /// <summary>
         /// 使用默认实现
@@ -69,16 +67,16 @@ namespace Parsifal.Math
         /// <summary>
         /// 指定算法逻辑是否可用
         /// </summary>
-        public static bool IsAvaliable(LogicProviderType providerType)
+        public static bool IsAvaliable(LinearAlgebraProviderType providerType)
         {
             switch (providerType)
             {
-                case LogicProviderType.Native:
+                case LinearAlgebraProviderType.Native:
                     return true;
-                case LogicProviderType.MKL:
+                case LinearAlgebraProviderType.MKL:
                     return true;
                 //break;
-                case LogicProviderType.CUDA:
+                case LinearAlgebraProviderType.CUDA:
                     break;
                 default:
                     throw new Exception(ErrorReason.UnknowType);

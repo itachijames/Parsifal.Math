@@ -5,10 +5,13 @@
     /// </summary>
     internal class ErrorReason
     {
+        public const string ServiceUnavailable = "服务不可用";
+        public const string NotSupportYet = "暂不支持";
+        public const string NotSupportType = "不支持的类型";
+        public const string NotSupportedOperation = "不支持的操作";
+
         public const string UnknowType = "未知类型";
         public const string WrongType = "类型错误";
-        public const string NotSupportYet = "暂不支持";
-        public const string NotSupportedOperation = "不支持的操作";
 
         public const string InvalidParameter = "无效参数";
         public const string ZeroParameter = "参数为零";

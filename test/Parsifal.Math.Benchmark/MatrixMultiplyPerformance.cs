@@ -6,10 +6,9 @@ namespace Parsifal.Math.Benchmark
     [MemoryDiagnoser]
     public class MatrixMultiplyPerformance
     {
-        readonly ILinearAlgebraProvider _direLogic;
-        readonly ILinearAlgebraProvider _parlLogic;
-        readonly ILinearAlgebraProvider _mklLogic;
-        readonly ILinearAlgebraProvider _cudaLogic;
+        readonly LinearAlgebraProvider _csLogic;
+        readonly LinearAlgebraProvider _mklLogic;
+        readonly LinearAlgebraProvider _cudaLogic;
 
         [Params(4, 8, 16, 32, 64, 128, 256, 512, 1024)]
         int MatOrder;
@@ -20,10 +19,9 @@ namespace Parsifal.Math.Benchmark
         public MatrixMultiplyPerformance()
         {
             //NEED TO DO: 将以下类转换为 public
-            //_direLogic = new NativeProvider();
-            //_parlLogic = new NativeProvider();
-            //_mklLogic = new MklProvider();
-            //_cudaLogic = new CudaProvider();
+            //    _csLogic = new NativeProvider();
+            //    _mklLogic = new MklProvider();
+            //    _cudaLogic = new CudaProvider();
         }
 
         [GlobalSetup]
@@ -47,10 +45,7 @@ namespace Parsifal.Math.Benchmark
         }
 
         [Benchmark]
-        public void Direct() => _direLogic.MatrixMultiply(MatOrder, MatOrder, _left, MatOrder, MatOrder, _right, _result);
-
-        [Benchmark]
-        public void Parallel() => _parlLogic.MatrixMultiply(MatOrder, MatOrder, _left, MatOrder, MatOrder, _right, _result);
+        public void UseNative() => _csLogic.MatrixMultiply(MatOrder, MatOrder, _left, MatOrder, MatOrder, _right, _result);
 
         [Benchmark]
         public void UseMKL() => _mklLogic.MatrixMultiply(MatOrder, MatOrder, _left, MatOrder, MatOrder, _right, _result);

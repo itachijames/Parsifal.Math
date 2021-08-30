@@ -94,9 +94,9 @@ namespace Parsifal.Math.Geometry
         public override int GetHashCode() => HashCode.Combine(_a, _b, _c);
         public override string ToString()
         {
-            var sb = new System.Text.StringBuilder($"{_a.ToString(UtilityHelper.DoubleFormat)}X");
-            sb.Append($" {(_b >= 0 ? '+' : '-')} {_b.ToString(UtilityHelper.DoubleFormat)}Y");
-            sb.Append($" {(_c >= 0 ? '+' : '-')} {_c.ToString(UtilityHelper.DoubleFormat)} = 0");
+            var sb = new System.Text.StringBuilder($"{_a.ToString(UtilityHelper.DigitalFormat)}X");
+            sb.Append($" {(_b >= 0 ? '+' : '-')} {_b.ToString(UtilityHelper.DigitalFormat)}Y");
+            sb.Append($" {(_c >= 0 ? '+' : '-')} {_c.ToString(UtilityHelper.DigitalFormat)} = 0");
             return sb.ToString();
         }
         #endregion

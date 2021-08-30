@@ -9,9 +9,6 @@ namespace Parsifal.Math
     /// </summary>
     public class DimensionMatchException : Exception
     {
-        public DimensionMatchException() : base(ErrorReason.DimensionDoesNoMatch)
-        { }
-
         public DimensionMatchException(params object[] arguments) : base(GetDescribe(arguments))
         { }
 
@@ -23,20 +20,15 @@ namespace Parsifal.Math
                 for (int i = 0; i < arguments.Length; i++)
                 {
                     var type = arguments[i].GetType();
-                    if (type.IsAssignableFrom(typeof(Matrix)))
+                    if (type.IsAssignableFrom(typeof(Matrix<>)))
                     {
-                        var matrix = (Matrix)arguments[i];
+                        var matrix = (Matrix<double>)arguments[i];//
                         sb.Append($" Argument {i + 1} is a {matrix.Rows}×{matrix.Columns} matrix.");
                     }
-                    else if (type.IsAssignableFrom(typeof(Vector)))
+                    else if (type.IsAssignableFrom(typeof(Vector<>)))
                     {
-                        var vector = (Vector)arguments[i];
+                        var vector = (Vector<double>)arguments[i];//
                         sb.Append($" Argument {i + 1} is a {vector.Count} dimension vector.");
-                    }
-                    else if (type.IsAssignableFrom(typeof(Tensor)))
-                    {
-                        var tensor = (Tensor)arguments[i];
-                        sb.Append($" Argument {i + 1} is a {tensor.Rank} rank tensor");
                     }
                     else
                     {

@@ -8,8 +8,7 @@ namespace Parsifal.Math
     {
         public const int SingleSize = sizeof(float);
         public const int DoubleSize = sizeof(double);
-        public const string SingleFormat = "G6";//6位显示精度
-        public const string DoubleFormat = "G8";//最多8位显示精度
+        public const string DigitalFormat = "G6";//6位显示精度
 
         /// <summary>
         /// 拷贝到目标数组(不检查参数，需保证两者长度相同)
@@ -24,6 +23,11 @@ namespace Parsifal.Math
         public static void CopyToWithoutCheck(this double[] source, double[] target)
         {
             Buffer.BlockCopy(source, 0, target, 0, source.Length * DoubleSize);
+        }
+        public static void CopyToWithoutCheck<T>(this T[] source, T[] target)
+            where T : struct
+        {
+            Array.Copy(source, 0, target, 0, source.Length);
         }
         /// <summary>
         /// 是否有重复项

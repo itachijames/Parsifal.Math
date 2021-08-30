@@ -10,33 +10,34 @@ namespace Parsifal.Math.Algebra
     /// </summary>
     [Serializable]
     [System.Diagnostics.DebuggerDisplay("Matrix ({Rows} × {Columns})")]
-    public partial class Matrix : IEnumerable<double>, IEquatable<Matrix>, ICloneable, IFormattable
+    public partial class Matrix<T> : AlgebraGenricBase<T>, IEnumerable<T>, IEquatable<Matrix<T>>, ICloneable, IFormattable
+        where T : struct, IEquatable<T>, IFormattable
     {
         #region field
-        private const int DoubleSize = sizeof(double);
         /// <summary>
         /// 元素(列主序)
         /// </summary>
-        private readonly double[] _elements;
+        private readonly T[] _elements;
         private readonly int _rowCount;
         private readonly int _colCount;
         #endregion
 
         #region property
-        internal double[] Storage { get => _elements; }
-        public double this[int rowIndex, int colIndex]
+        internal T[] Storage { get => _elements; }
+
+        public T this[int rowIndex, int columnIndex]
         {
             get
             {
                 CheckRowIndex(rowIndex);
-                CheckColumnIndex(colIndex);
-                return Get(rowIndex, colIndex);
+                CheckColumnIndex(columnIndex);
+                return Get(rowIndex, columnIndex);
             }
             set
             {
                 CheckRowIndex(rowIndex);
-                CheckColumnIndex(colIndex);
-                Set(rowIndex, colIndex, value);
+                CheckColumnIndex(columnIndex);
+                Set(rowIndex, columnIndex, value);
             }
         }
         /// <summary>
@@ -54,36 +55,15 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region constructor
-        /// <summary>
-        /// 创建指定阶数的矩阵
-        /// </summary>
-        /// <param name="order">阶数</param>
-        public Matrix(int order)
-            : this(order, order) { }
-        /// <summary>
-        /// 创建指定行列数的矩阵
-        /// </summary>
-        /// <param name="rows">行数</param>
-        /// <param name="columns">列数</param>
         public Matrix(int rows, int columns)
         {
-            if (rows < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-            if (columns < 1)
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
+            CheckValidRowAndColumn(rows, columns);
             _rowCount = rows;
             _colCount = columns;
-            _elements = new double[rows * columns];
+            _elements = new T[rows * columns];
         }
-        internal Matrix(int rows, int columns, double[] elements)
+        internal Matrix(int rows, int columns, T[] elements)
         {
-            //内部创建不再进行检查
-            //if (rows < 1)
-            //    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rows));
-            //if (columns < 1)
-            //    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columns));
-            //if (elements is null || elements.Length == 0)
-            //    ThrowHelper.ThrowArgumentNullException(nameof(elements));
             if (rows * columns != elements.Length)
                 ThrowHelper.ThrowIllegalArgumentException(ErrorReason.InvalidParameter, nameof(elements));
             _rowCount = rows;
@@ -93,18 +73,30 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region IEquatable
-        public bool Equals(Matrix other) => this == other;
+        public bool Equals(Matrix<T> other)
+        {
+            if (other is null)
+                return false;
+            if (_rowCount != other._rowCount || _colCount != other._colCount)
+                return false;
+            for (int i = 0; i < _elements.Length; i++)
+            {
+                if (!Get(i).Equals(other.Get(i)))
+                    return false;
+            }
+            return true;
+        }
         #endregion
 
         #region IEnumerable
-        public IEnumerator<double> GetEnumerator()
+        public IEnumerator GetEnumerator()
         {
             for (int i = 0; i < _elements.Length; i++)
             {
                 yield return Get(i);
             }
         }
-        IEnumerator IEnumerable.GetEnumerator()
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             for (int i = 0; i < _elements.Length; i++)
             {
@@ -118,11 +110,11 @@ namespace Parsifal.Math.Algebra
         {
             return Clone();
         }
-        public Matrix Clone()
+        public Matrix<T> Clone()
         {
-            double[] data = new double[_elements.Length];
-            Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
-            return new Matrix(_rowCount, _colCount, data);
+            T[] data = new T[_elements.Length];
+            Array.Copy(_elements, 0, data, 0, _elements.Length);
+            return new Matrix<T>(_rowCount, _colCount, data);
         }
         #endregion
 
@@ -144,9 +136,9 @@ namespace Parsifal.Math.Algebra
         #endregion
 
         #region BCL
-        public override bool Equals(object obj) => obj is Matrix mat && Equals(mat);
+        public override bool Equals(object obj) => obj is Matrix<T> matrix && Equals(matrix);
         public override int GetHashCode() => HashCode.Combine(_rowCount, _colCount, _elements);
-        public override string ToString() => ToString(UtilityHelper.DoubleFormat, System.Globalization.CultureInfo.CurrentCulture);
+        public override string ToString() => ToString(UtilityHelper.DigitalFormat, System.Globalization.CultureInfo.CurrentCulture);
         #endregion
 
         #region public
@@ -161,7 +153,7 @@ namespace Parsifal.Math.Algebra
             {
                 for (int j = i + 1; j < _colCount; j++)
                 {
-                    if (!Get(i, j).IsEqual(Get(j, i)))
+                    if (!Get(i, j).Equals(Get(j, i)))
                     {
                         return false;
                     }
@@ -169,22 +161,22 @@ namespace Parsifal.Math.Algebra
             }
             return true;
         }
-        public LU LU()
+        public LU<T> LU()
         {
-            return new LU(this);
+            return new LU<T>(this);
         }
-        public QR QR()
+        public QR<T> QR()
         {
             throw new NotImplementedException();
         }
-        public Svd Svd()
+        public Svd<T> Svd()
         {
             throw new NotImplementedException();
         }
         /// <summary>
         /// 行列式
         /// </summary>
-        public double Determinant()
+        public T Determinant()
         {
             CheckSquareMatrix(this);
             return LU().Determinant();
@@ -195,14 +187,14 @@ namespace Parsifal.Math.Algebra
         /// <param name="rowIndex">行索引</param>
         /// <param name="columnIndex">列索引</param>
         /// <returns>指定元素的代数余子式</returns>
-        public double Cofactor(int rowIndex, int columnIndex)
+        public T Cofactor(int rowIndex, int columnIndex)
         {
             throw new NotImplementedException();
         }
         /// <summary>
         /// 条件数
         /// </summary>
-        public double ConditionNumber()
+        public T ConditionNumber()
         {
             throw new NotImplementedException();
         }
@@ -215,21 +207,22 @@ namespace Parsifal.Math.Algebra
         }
         /// <summary>迹</summary>
         /// <remarks>主对角线元素之和</remarks>
-        public double Trace()
+        public T Trace()
         {
-            CheckSquareMatrix(this);
-            double result = 0d;
-            for (int i = 0; i < _rowCount; i++)
-            {
-                result += Get(i, i);
-            }
-            return result;
+            //CheckSquareMatrix(this);
+            //T result = default;
+            //for (int i = 0; i < _rowCount; i++)
+            //{
+            //    result += Get(i, i);
+            //}
+            //return result;
+            throw new NotImplementedException();
         }
         /// <summary>
         /// 求逆矩阵
         /// </summary>
         /// <returns>逆矩阵</returns>
-        public Matrix Inverse()
+        public Matrix<T> Inverse()
         {
             CheckSquareMatrix(this);
             return LU().Inverse();
@@ -237,7 +230,7 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 伪逆矩阵
         /// </summary>
-        public Matrix PseudoInverse()
+        public Matrix<T> PseudoInverse()
         {
             throw new NotImplementedException();
         }
@@ -245,9 +238,9 @@ namespace Parsifal.Math.Algebra
         /// 获取转置矩阵
         /// </summary>
         /// <returns>转置矩阵</returns>
-        public Matrix Transpose()
+        public Matrix<T> Transpose()
         {
-            double[] data = new double[_rowCount * _colCount];
+            T[] data = new T[_rowCount * _colCount];
             for (int i = 0; i < _colCount; i++)
             {
                 for (int j = 0; j < _rowCount; j++)
@@ -255,77 +248,55 @@ namespace Parsifal.Math.Algebra
                     data[j * _colCount + i] = Get(j, i);
                 }
             }
-            return new Matrix(_colCount, _rowCount, data);
+            return new Matrix<T>(_colCount, _rowCount, data);
         }
         /// <summary>
         /// 幂矩阵
         /// </summary>
         /// <param name="exponent">幂次</param>
         /// <returns></returns>
-        public Matrix Power(int exponent)
+        public Matrix<T> Power(int exponent)
         {
             throw new NotImplementedException();
         }
         /// <summary>
         /// 下三角矩阵
         /// </summary>
-        public Matrix LowerTriangle()
+        public Matrix<T> LowerTriangle()
         {
-            //var result = new Matrix(_rowCount, _colCount);
-            //for (int i = 0; i < _rowCount; i++)
-            //{
-            //    for (int j = 0; j <= i && j < _colCount; j++)
-            //    {
-            //        result.Set(i, j, Get(i, j));
-            //    }
-            //}
-            //return result;
-            double[] data = new double[_elements.Length];
+            T[] data = new T[_elements.Length];
             int min = Math.Min(_rowCount, _colCount);
             for (int i = 0; i < min; i++)
             {
                 int offset = i * _rowCount + i;
-                Buffer.BlockCopy(_elements, offset * DoubleSize,
-                    data, offset * DoubleSize,
-                    (_rowCount - i) * DoubleSize);
+                Array.Copy(_elements, offset, data, offset, _rowCount - 1);
             }
-            return new Matrix(_rowCount, _colCount, data);
+            return new Matrix<T>(_rowCount, _colCount, data);
         }
         /// <summary>
         /// 上三角矩阵
         /// </summary>
-        public Matrix UpperTriangle()
+        public Matrix<T> UpperTriangle()
         {
-            //var result = new Matrix(_rowCount, _colCount);
-            //for (int i = 0; i < _rowCount; i++)
-            //{
-            //    for (int j = i; j < _colCount; j++)
-            //    {
-            //        result.Set(i, j, Get(i, j));
-            //    }
-            //}
-            //return result;
-            double[] data = new double[_elements.Length];
+            T[] data = new T[_elements.Length];
             int min = Math.Min(_rowCount, _colCount);
             for (int i = 0; i < min; i++)
             {
-                Buffer.BlockCopy(_elements, i * _rowCount * DoubleSize,
-                    data, i * _rowCount * DoubleSize,
-                    (i + 1) * DoubleSize);
+                Array.Copy(_elements, i * _rowCount, data, _rowCount, i + 1);
             }
-            return new Matrix(_rowCount, _colCount, data);
+            return new Matrix<T>(_rowCount, _colCount, data);
         }
         /// <summary>
         /// 核
         /// </summary>
-        public double[] Kernel()
+        public T[] Kernel()
         {
             throw new NotImplementedException();
         }
         /// <summary>
         /// 象
         /// </summary>
-        public double[] Image()
+        public T[] Image()
         {
             throw new NotImplementedException();
         }
@@ -336,25 +307,26 @@ namespace Parsifal.Math.Algebra
         /// 1范数
         /// </summary>
         /// <remarks>列向量绝对值之和的最大值</remarks>
-        public double OneNorm()
+        public T OneNorm()
         {
-            double norm = 0d;
-            for (int i = 0; i < _colCount; i++)
-            {
-                double temp = 0d;
-                for (int j = 0; j < _rowCount; j++)
-                {
-                    temp += Math.Abs(Get(j, i));
-                }
-                norm = Math.Max(temp, norm);
-            }
-            return norm;
+            //T norm;
+            //for (int i = 0; i < _colCount; i++)
+            //{
+            //    T temp = default;
+            //    for (int j = 0; j < _rowCount; j++)
+            //    {
+            //        temp += Math.Abs(Get(j, i));
+            //    }
+            //    norm = Math.Max(temp, norm);
+            //}
+            //return norm;
+            throw new NotImplementedException();
         }
         /// <summary>
         /// 2范数
         /// </summary>
         /// <remarks>(AT)*A 的最大特征值开方 √(λmax)</remarks>
-        public double TwoNorm()
+        public T TwoNorm()
         {
             throw new NotImplementedException();
         }
@@ -362,38 +334,40 @@ namespace Parsifal.Math.Algebra
         /// 无穷范数
         /// </summary>
         /// <remarks>行向量绝对值之和的最大值</remarks>
-        public double InfinityNorm()
+        public T InfinityNorm()
         {
-            double norm = 0d;
-            for (int i = 0; i < _rowCount; i++)
-            {
-                double temp = 0d;
-                for (int j = 0; j < _colCount; j++)
-                {
-                    temp += Math.Abs(Get(i, j));
-                }
-                norm = Math.Max(temp, norm);
-            }
-            return norm;
+            //double norm = 0d;
+            //for (int i = 0; i < _rowCount; i++)
+            //{
+            //    double temp = 0d;
+            //    for (int j = 0; j < _colCount; j++)
+            //    {
+            //        temp += Math.Abs(Get(i, j));
+            //    }
+            //    norm = Math.Max(temp, norm);
+            //}
+            //return norm;
+            throw new NotImplementedException();
         }
         /// <summary>
         /// F范数
         /// </summary>
         /// <remarks>所有元素平方和的开方</remarks>
-        public double FrobeniusNorm()
+        public T FrobeniusNorm()
         {
-            double temp = 0d;
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                temp += Math.Pow(Get(i), 2);
-            }
-            return Math.Sqrt(temp);
+            //T temp;
+            //for (int i = 0; i < _elements.Length; i++)
+            //{
+            //    temp += Math.Pow(Get(i), 2);
+            //}
+            //return Math.Sqrt(temp);
+            throw new NotImplementedException();
         }
         /// <summary>
         /// 核范数
         /// </summary>
         /// <remarks>奇异值之和</remarks>
-        public double NuclearNorm()
+        public T NuclearNorm()
         {
             throw new NotImplementedException();
         }
@@ -404,7 +378,7 @@ namespace Parsifal.Math.Algebra
         /// 获取行
         /// </summary>
         /// <param name="rowIndex">行索引</param>
-        public IEnumerable<double> GetRow(int rowIndex)
+        public IEnumerable<T> GetRow(int rowIndex)
         {
             CheckRowIndex(rowIndex);
             for (int i = 0; i < _colCount; i++)
@@ -416,10 +390,10 @@ namespace Parsifal.Math.Algebra
         /// 获取列数组
         /// </summary>
         /// <param name="rowIndex">行索引</param>
-        public double[] GetRowArray(int rowIndex)
+        public T[] GetRowArray(int rowIndex)
         {
             CheckRowIndex(rowIndex);
-            double[] result = new double[_colCount];
+            T[] result = new T[_colCount];
             for (int i = 0; i < _colCount; i++)
             {
                 result[i] = Get(rowIndex, i);
@@ -431,7 +405,7 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         /// <param name="rowIndex">行索引</param>
         /// <returns>行向量</returns>
-        public Vector GetRowVector(int rowIndex)
+        public Vector<T> GetRowVector(int rowIndex)
         {
             return GetRowArray(rowIndex);
         }
@@ -439,7 +413,7 @@ namespace Parsifal.Math.Algebra
         /// 获取列
         /// </summary>
         /// <param name="columnIndex">列索引</param>
-        public IEnumerable<double> GetColumn(int columnIndex)
+        public IEnumerable<T> GetColumn(int columnIndex)
         {
             CheckColumnIndex(columnIndex);
             for (int i = 0; i < _rowCount; i++)
@@ -451,11 +425,11 @@ namespace Parsifal.Math.Algebra
         /// 获取列数组
         /// </summary>
         /// <param name="columnIndex">列索引</param>
-        public double[] GetColumnArray(int columnIndex)
+        public T[] GetColumnArray(int columnIndex)
         {
             CheckColumnIndex(columnIndex);
-            double[] result = new double[_rowCount];
-            Buffer.BlockCopy(_elements, columnIndex * _rowCount * DoubleSize, result, 0, _rowCount * DoubleSize);
+            T[] result = new T[_rowCount];
+            Array.Copy(_elements, columnIndex * _rowCount, result, 0, _rowCount);
             return result;
         }
         /// <summary>
@@ -463,7 +437,7 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         /// <param name="columnIndex">列索引</param>
         /// <returns>列向量</returns>
-        public Vector GetColumnVector(int columnIndex)
+        public Vector<T> GetColumnVector(int columnIndex)
         {
             return GetColumnArray(columnIndex);
         }
@@ -475,7 +449,7 @@ namespace Parsifal.Math.Algebra
         /// <param name="columnIndex">起始列索引</param>
         /// <param name="cCount">列数</param>
         /// <returns>子矩阵</returns>
-        public Matrix GetSubMatrix(int rowIndex, int rCount, int columnIndex, int cCount)
+        public Matrix<T> GetSubMatrix(int rowIndex, int rCount, int columnIndex, int cCount)
         {
             if (rCount < 1 || cCount < 1)
                 ThrowHelper.ThrowIllegalArgumentException(ErrorReason.NotPositiveParameter);
@@ -483,21 +457,19 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(rowIndex));
             if (columnIndex < 0 || columnIndex + cCount > _colCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnIndex));
-            double[] data = new double[rCount * cCount];
+            T[] data = new T[rCount * cCount];
             for (int i = 0; i < cCount; i++)
             {
-                Buffer.BlockCopy(_elements, ((columnIndex + i) * _rowCount + rowIndex) * DoubleSize,
-                    data, i * rCount * DoubleSize,
-                    rCount * DoubleSize);
+                Array.Copy(_elements, (columnIndex + i) * _rowCount + rowIndex, data, i * rCount, rCount);
             }
-            return new Matrix(rCount, cCount, data);
+            return new Matrix<T>(rCount, cCount, data);
         }
         /// <summary>
         /// 设置行
         /// </summary>
         /// <param name="rowIndex">行索引</param>
         /// <param name="row">行元素</param>
-        public void SetRow(int rowIndex, double[] row)
+        public void SetRow(int rowIndex, T[] row)
         {
             CheckRowIndex(rowIndex);
             if (row is null)
@@ -514,7 +486,7 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         /// <param name="rowIndex">行索引</param>
         /// <param name="row">行向量</param>
-        public void SetRow(int rowIndex, Vector row)
+        public void SetRow(int rowIndex, Vector<T> row)
         {
             SetRow(rowIndex, row.Storage);
         }
@@ -523,23 +495,21 @@ namespace Parsifal.Math.Algebra
         /// </summary>
         /// <param name="columnIndex">列索引</param>
         /// <param name="column">列元素</param>
-        public void SetColumn(int columnIndex, double[] column)
+        public void SetColumn(int columnIndex, T[] column)
         {
             CheckColumnIndex(columnIndex);
             if (column is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(column));
             if (column.Length != _rowCount)
                 ThrowHelper.ThrowDimensionDontMatchException(this, column);
-            Buffer.BlockCopy(column, 0,
-                _elements, columnIndex * _rowCount * DoubleSize,
-                _rowCount * DoubleSize);
+            Array.Copy(column, 0, _elements, columnIndex * _rowCount, _rowCount);
         }
         /// <summary>
         /// 设置列
         /// </summary>
         /// <param name="columnIndex">列索引</param>
         /// <param name="column">列向量</param>
-        public void SetColumn(int columnIndex, Vector column)
+        public void SetColumn(int columnIndex, Vector<T> column)
         {
             SetColumn(columnIndex, column.Storage);
         }
@@ -549,7 +519,7 @@ namespace Parsifal.Math.Algebra
         /// <param name="rowIndex">起始行索引</param>
         /// <param name="columnIndex">起始列索引</param>
         /// <param name="subMatrix">子矩阵</param>
-        public void SetSubMatrix(int rowIndex, int columnIndex, Matrix subMatrix)
+        public void SetSubMatrix(int rowIndex, int columnIndex, Matrix<T> subMatrix)
         {
             if (subMatrix is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(subMatrix));
@@ -559,43 +529,39 @@ namespace Parsifal.Math.Algebra
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(columnIndex));
             for (int i = 0; i < subMatrix._colCount; i++)
             {
-                Buffer.BlockCopy(subMatrix._elements, i * subMatrix._rowCount * DoubleSize,
-                    _elements, ((columnIndex + i) * _rowCount + rowIndex) * DoubleSize,
-                    subMatrix._rowCount * DoubleSize);
+                Array.Copy(subMatrix._elements, i * subMatrix._rowCount,
+                    _elements, (columnIndex + i) * _rowCount + rowIndex,
+                    subMatrix._rowCount);
             }
         }
         /// <summary>
         /// 添加到下方
         /// </summary>
         /// <param name="matrix">待添加矩阵</param>
-        public Matrix ConcatenateBelow(Matrix matrix)
+        public Matrix<T> ConcatenateBelow(Matrix<T> matrix)
         {
             CheckSameColumn(this, matrix);
             int rows = _rowCount + matrix._rowCount;
-            double[] data = new double[rows * _colCount];
+            T[] data = new T[rows * _colCount];
             for (int i = 0; i < _colCount; i++)
             {
-                Buffer.BlockCopy(_elements, i * _rowCount * DoubleSize,
-                    data, i * rows * DoubleSize,
-                    _rowCount * DoubleSize);
-                Buffer.BlockCopy(matrix._elements, i * matrix._rowCount * DoubleSize,
-                    data, ((i * rows) + _rowCount) * DoubleSize,
-                    matrix._rowCount * DoubleSize);
+                Array.Copy(_elements, i * _rowCount, data, i * rows, _rowCount);
+                Array.Copy(matrix._elements, i * matrix._rowCount, data, (i * rows) + _rowCount, matrix._rowCount);
             }
-            return new Matrix(rows, _colCount, data);
+            return new Matrix<T>(rows, _colCount, data);
         }
         /// <summary>
         /// 添加到右方
         /// </summary>
         /// <param name="matrix">待添加矩阵</param>
-        public Matrix ConcatenateRight(Matrix matrix)
+        public Matrix<T> ConcatenateRight(Matrix<T> matrix)
         {
             CheckSameRow(this, matrix);
             int cols = _colCount + matrix._colCount;
-            double[] data = new double[_rowCount * cols];
-            Buffer.BlockCopy(_elements, 0, data, 0, _elements.Length * DoubleSize);
-            Buffer.BlockCopy(matrix._elements, 0, data, _elements.Length * DoubleSize, matrix._elements.Length * DoubleSize);
-            return new Matrix(_rowCount, cols, data);
+            T[] data = new T[_rowCount * cols];
+            Array.Copy(_elements, 0, data, 0, _elements.Length);
+            Array.Copy(matrix._elements, 0, data, _elements.Length, matrix._elements.Length);
+            return new Matrix<T>(_rowCount, cols, data);
         }
         /// <summary>
         /// 清空矩阵
@@ -613,7 +579,7 @@ namespace Parsifal.Math.Algebra
             CheckRowIndex(rowIndex);
             for (int i = 0; i < _colCount; i++)
             {
-                Set(rowIndex, i, 0d);
+                Set(rowIndex, i, Zero);
             }
         }
         /// <summary>
@@ -649,36 +615,23 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 数值归零
         /// </summary>
-        public void CoerceZero()
-        {
-            for (int i = 0; i < _elements.Length; i++)
-            {
-                if (Get(i).IsZero())
-                {
-                    Set(i, 0d);
-                }
-            }
-        }
-        /// <summary>
-        /// 数值归零
-        /// </summary>
         /// <param name="zeroPredicate">为0判定</param>
-        public void CoerceZero(Predicate<double> zeroPredicate)
+        public void CoerceZero(Predicate<T> zeroPredicate)
         {
             for (int i = 0; i < _elements.Length; i++)
             {
                 if (zeroPredicate(Get(i)))
                 {
-                    Set(i, 0d);
+                    Set(i, Zero);
                 }
             }
         }
         /// <summary>
         /// 转为行主序的一维数组
         /// </summary>
-        public double[] ToRowMajorArray()
+        public T[] ToRowMajorArray()
         {
-            double[] result = new double[_elements.Length];
+            T[] result = new T[_elements.Length];
             for (int i = 0; i < _rowCount; i++)
             {
                 for (int j = 0, temp = i * _colCount; j < _colCount; j++)
@@ -691,18 +644,18 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 转为列主序的一维数组
         /// </summary>
-        public double[] ToColumnMajorArray()
+        public T[] ToColumnMajorArray()
         {
-            double[] result = new double[_elements.Length];
-            Buffer.BlockCopy(_elements, 0, result, 0, _elements.Length * DoubleSize);
+            T[] result = new T[_elements.Length];
+            Array.Copy(_elements, 0, result, 0, _elements.Length);
             return result;
         }
         /// <summary>
         /// 转为二维数组
         /// </summary>
-        public double[,] To2DArray()
+        public T[,] To2DArray()
         {
-            double[,] result = new double[_rowCount, _colCount];
+            T[,] result = new T[_rowCount, _colCount];
             for (int i = 0; i < _rowCount; i++)
             {
                 for (int j = 0; j < _colCount; j++)
@@ -715,12 +668,12 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 转为行交错数组
         /// </summary>
-        public double[][] ToRowJaggedArray()
+        public T[][] ToRowJaggedArray()
         {
-            double[][] result = new double[_rowCount][];
+            T[][] result = new T[_rowCount][];
             for (int i = 0; i < _rowCount; i++)
             {
-                double[] rows = new double[_colCount];
+                T[] rows = new T[_colCount];
                 for (int j = 0; j < _colCount; j++)
                 {
                     rows[j] = Get(i, j);
@@ -732,15 +685,13 @@ namespace Parsifal.Math.Algebra
         /// <summary>
         /// 转为列交错数组
         /// </summary>
-        public double[][] ToColumnJaggedArray()
+        public T[][] ToColumnJaggedArray()
         {
-            double[][] result = new double[_colCount][];
+            T[][] result = new T[_colCount][];
             for (int i = 0; i < _colCount; i++)
             {
-                double[] cols = new double[_rowCount];
-                Buffer.BlockCopy(_elements, i * _rowCount * DoubleSize,
-                    cols, 0,
-                    _rowCount * DoubleSize);
+                T[] cols = new T[_rowCount];
+                Array.Copy(_elements, i * _rowCount, cols, 0, _rowCount);
                 result[i] = cols;
             }
             return result;

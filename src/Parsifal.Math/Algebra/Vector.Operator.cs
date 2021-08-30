@@ -1,57 +1,57 @@
 ﻿namespace Parsifal.Math.Algebra
 {
-    public partial class Vector
+    partial class Vector<T>
     {
         #region static
-        public static Vector Negate(Vector vector)
+        public static Vector<T> Negate(Vector<T> vector)
         {
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            double[] data = new double[vector._elements.Length];
+            T[] data = new T[vector._elements.Length];
             LogicControl.LinearAlgebraProvider.ArrayMultiply(-1, vector._elements, data);
             return data;
         }
-        public static Vector Add(Vector left, Vector right)
+        public static Vector<T> Add(Vector<T> left, Vector<T> right)
         {
             if (left is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(left));
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            double[] data = new double[left._elements.Length];
+            T[] data = new T[left._elements.Length];
             LogicControl.LinearAlgebraProvider.ArrayAdd(left._elements, right._elements, data);
             return data;
         }
-        public static Vector Subtract(Vector left, Vector right)
+        public static Vector<T> Subtract(Vector<T> left, Vector<T> right)
         {
             if (left is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(left));
             if (right is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(right));
             CheckSameDimension(left, right);
-            double[] data = new double[left._elements.Length];
+            T[] data = new T[left._elements.Length];
             LogicControl.LinearAlgebraProvider.ArraySubtract(left._elements, right._elements, data);
             return data;
         }
-        public static Vector Multiply(Vector vector, double scalar)
+        public static Vector<T> Multiply(Vector<T> vector, T scalar)
         {
             if (vector is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(vector));
-            double[] data = new double[vector._elements.Length];
+            T[] data = new T[vector._elements.Length];
             LogicControl.LinearAlgebraProvider.ArrayMultiply(scalar, vector._elements, data);
             return data;
         }
-        public static Vector Multiply(double scalar, Vector vector)
+        public static Vector<T> Multiply(T scalar, Vector<T> vector)
         {
-            return Vector.Multiply(vector, scalar);
+            return Vector<T>.Multiply(vector, scalar);
         }
-        public static Vector Divide(Vector vector, double scalar)
+        public static Vector<T> Divide(Vector<T> vector, T scalar)
         {
-            if (scalar.IsZero())
+            if (scalar.Equals(Zero))
                 ThrowHelper.ThrowIllegalArgumentException(ErrorReason.ZeroParameter, nameof(scalar));
-            return Vector.Multiply(vector, 1.0 / scalar);
+            return Vector<T>.Multiply(vector, 1.0 / scalar);
         }
-        public static double DotProduct(Vector left, Vector right)
+        public static T DotProduct(Vector<T> left, Vector<T> right)
         {
             if (left is null)
                 ThrowHelper.ThrowArgumentNullException(nameof(left));
@@ -63,92 +63,83 @@
         #endregion
 
         #region instance
-        public Vector Negate()
+        public Vector<T> Negate()
         {
-            return Vector.Negate(this);
+            return Vector<T>.Negate(this);
         }
-        public Vector Add(Vector vector)
+        public Vector<T> Add(Vector<T> vector)
         {
-            return Vector.Add(this, vector);
+            return Vector<T>.Add(this, vector);
         }
-        public Vector Subtract(Vector vector)
+        public Vector<T> Subtract(Vector<T> vector)
         {
-            return Vector.Subtract(this, vector);
+            return Vector<T>.Subtract(this, vector);
         }
-        public Vector Multiply(double scalar)
+        public Vector<T> Multiply(T scalar)
         {
-            return Vector.Multiply(this, scalar);
+            return Vector<T>.Multiply(this, scalar);
         }
-        public Vector Multiply(Matrix matrix)
+        public Vector<T> Multiply(Matrix<T> matrix)
         {
-            return Matrix.Multiply(this, matrix);
+            return Matrix<T>.Multiply(this, matrix);
         }
-        public Vector Divide(double scalar)
+        public Vector<T> Divide(T scalar)
         {
-            return Vector.Divide(this, scalar);
+            return Vector<T>.Divide(this, scalar);
         }
         /// <summary>
         /// 向量点积/内积
         /// </summary>
         /// <param name="vector"></param>
         /// <returns>数量积</returns>
-        public double DotProduct(Vector vector)
+        public T DotProduct(Vector<T> vector)
         {
-            return Vector.DotProduct(this, vector);
+            return Vector<T>.DotProduct(this, vector);
         }
         #endregion
 
         #region operator
-        public static implicit operator Vector(double[] element)
+        public static implicit operator Vector<T>(T[] element)
         {//隐式转换
-            return new Vector(element);
+            return new Vector<T>(element);
         }
-        public static bool operator ==(Vector left, Vector right)
+        public static bool operator ==(Vector<T> left, Vector<T> right)
         {
             if (left is null)
                 return right is null;
-            if (right is null)//此时left不为null
-                return false;
-            if (left._elements.Length != right._elements.Length)
-                return false;
-            for (int i = 0; i < left._elements.Length; i++)
-            {
-                if (left.Get(i) != right.Get(i))
-                    return false;
-            }
-            return true;
+            return left.Equals(right);
         }
-        public static bool operator !=(Vector left, Vector right)
+        public static bool operator !=(Vector<T> left, Vector<T> right)
         {
             return !(left == right);
         }
-        public static Vector operator +(Vector left, Vector right)
+        public static Vector<T> operator +(Vector<T> left, Vector<T> right)
         {
-            return Vector.Add(left, right);
+            return Vector<T>.Add(left, right);
         }
-        public static Vector operator -(Vector vector)
+        public static Vector<T> operator -(Vector<T> vector)
         {
-            return Vector.Negate(vector);
+            return Vector<T>.Negate(vector);
         }
-        public static Vector operator -(Vector left, Vector right)
+        public static Vector<T> operator -(Vector<T> left, Vector<T> right)
         {
-            return Vector.Subtract(left, right);
+            return Vector<T>.Subtract(left, right);
         }
-        public static Vector operator *(Vector vector, double scalar)
+        public static Vector<T> operator *(Vector<T> vector, T scalar)
         {
-            return Vector.Multiply(vector, scalar);
+            return Vector<T>.Multiply(vector, scalar);
         }
-        public static Vector operator *(double scalar, Vector vector)
+        public static Vector<T> operator *(T scalar, Vector<T> vector)
         {
-            return Vector.Multiply(scalar, vector);
+            return Vector<T>.Multiply(scalar, vector);
         }
-        public static double operator *(Vector left, Vector right)
+        public static T operator *(Vector<T> left, Vector<T> right)
         {
-            return Vector.DotProduct(left, right);
+            return Vector<T>.DotProduct(left, right);
         }
-        public static Vector operator /(Vector vector, double scalar)
+        public static Vector<T> operator /(Vector<T> vector, T scalar)
         {
-            return Vector.Divide(vector, scalar);
+            return Vector<T>.Divide(vector, scalar);
         }
         #endregion
     }

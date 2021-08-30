@@ -67,7 +67,7 @@ namespace Parsifal.Math.Geometry
         #region BCL
         public override bool Equals(object obj) => obj is Vector2D vector && Equals(vector);
         public override int GetHashCode() => HashCode.Combine(_x, _y);
-        public override string ToString() => $"[{_x.ToString(UtilityHelper.DoubleFormat)}, {_y.ToString(UtilityHelper.DoubleFormat)}]";
+        public override string ToString() => $"[{_x.ToString(UtilityHelper.DigitalFormat)}, {_y.ToString(UtilityHelper.DigitalFormat)}]";
         public void Deconstruct(out double x, out double y)
         {
             x = _x;

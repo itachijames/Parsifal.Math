@@ -55,8 +55,8 @@ namespace Parsifal.Math.Geometry
         public override string ToString()
         {
             var sb = new System.Text.StringBuilder();
-            sb.Append($"(X {(Center.X >= 0 ? '-' : '+')} {Math.Abs(Center.X).ToString(UtilityHelper.DoubleFormat)})² + ");
-            sb.Append($"(Y {(Center.Y >= 0 ? '-' : '+')} {Math.Abs(Center.Y).ToString(UtilityHelper.DoubleFormat)})² = ");
+            sb.Append($"(X {(Center.X >= 0 ? '-' : '+')} {Math.Abs(Center.X).ToString(UtilityHelper.DigitalFormat)})² + ");
+            sb.Append($"(Y {(Center.Y >= 0 ? '-' : '+')} {Math.Abs(Center.Y).ToString(UtilityHelper.DigitalFormat)})² = ");
             sb.Append($"{Radius}²");
             return sb.ToString();
         }

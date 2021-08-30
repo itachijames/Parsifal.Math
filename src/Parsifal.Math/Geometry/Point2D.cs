@@ -7,7 +7,7 @@ namespace Parsifal.Math.Geometry
     /// 二维点
     /// </summary>
     /// <remarks>
-    /// 默认为笛卡尔坐标系(Cartesian Coordinates),直角坐标系,以第一象限为正
+    /// 默认为笛卡尔坐标系(Cartesian Coordinate),直角坐标系,以第一象限为正
     /// </remarks>
     public struct Point2D : IEquatable<Point2D>
     {
@@ -60,7 +60,7 @@ namespace Parsifal.Math.Geometry
         #region BCL
         public override bool Equals(object obj) => obj is Point2D point && Equals(point);
         public override int GetHashCode() => HashCode.Combine(_x, _y);
-        public override string ToString() => $"({_x.ToString(UtilityHelper.DoubleFormat)}, {_y.ToString(UtilityHelper.DoubleFormat)})";
+        public override string ToString() => $"({_x.ToString(UtilityHelper.DigitalFormat)}, {_y.ToString(UtilityHelper.DigitalFormat)})";
         public void Deconstruct(out double x, out double y)
         {
             x = _x;

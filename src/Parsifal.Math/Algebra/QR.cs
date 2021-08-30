@@ -5,16 +5,19 @@ namespace Parsifal.Math.Algebra
     /// <summary>
     /// QR分解
     /// </summary>
-    public class QR : ILineraEquationSolver
+    public class QR<T> : ILineraEquationSolver<T>
+        where T : struct, IEquatable<T>
     {
-        public Matrix Solve(Matrix input)
+        #region ILineraEquationSolver
+        public Matrix<T> Solve(Matrix<T> input)
         {
             throw new NotImplementedException();
         }
 
-        public Vector Solve(Vector input)
+        public Vector<T> Solve(Vector<T> input)
         {
             throw new NotImplementedException();
         }
+        #endregion
     }
 }
